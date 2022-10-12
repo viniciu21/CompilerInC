@@ -1,0 +1,75 @@
+function void merge_sort(Array<int> arr, int low, int high)
+{
+    int mid;
+    if (low < high){
+        //divide the array at mid and sort independently using merge sort
+        mid=(low+high)/2;
+        merge_sort(arr,low,mid);
+        merge_sort(arr,mid+1,high);
+        //merge or conquer sorted arrays
+        merge(arr,low,high,mid);
+    }
+}
+// Merge sort 
+function void merge(Array<int> arr, int low, int high, int mid)
+START_FUNCTION
+    int i;
+    int j;
+    int k; 
+    int c[50];
+    i = low;
+    k = low;
+    j = mid + 1;
+    while (i <= mid && j <= high) {
+        if (arr[i] < arr[j]) 
+        START_IF
+            c[k] = arr[i];
+            k++;
+            i++;
+        END_IF
+        else  
+        START_ELSE
+            c[k] = arr[j];
+            k++;
+            j++;
+        END_ELSE
+        
+    }
+    while (i <= mid) 
+    START_WHILE
+        c[k] = arr[i];
+        k++;
+        i++;
+    END_WHILE
+    while (j <= high) 
+    START_WHILE
+        c[k] = arr[j];
+        k++;
+        j++;
+    END_WHILE
+    for (i = low; i < k; i++)  
+    START_FOR
+        arr[i] = c[i];
+    END_FOR
+END_FUNCTION
+// read input array and call mergesort
+function int main()
+START_FUNCTION
+    Array<Integer> myarray[30] = new Array<int>(30);
+    Integer num;
+    print("Enter number of elements to be sorted:");
+    num = read();
+    print("Enter ") 
+    print(num)
+    print(" elements to be sorted:");
+    for (int i = 0; i < num; i++) START_FOR
+        myarray[i] = read();
+    END_FOR
+    merge_sort(myarray, 0, num-1);
+    print("Sorted array\n");
+    for (int i = 0; i < num; i++)
+    START_FOR
+        print(myarray[i])
+        print("\t");
+    END_FOR
+END_FUNCTION
