@@ -1,4 +1,4 @@
-START VOID FUNCTION merge_sort(Array<int> arr, int low, int high)
+START FUNCTION VOID merge_sort(Array<int> arr, int low, int high)
 {
     int mid;
     if (low < high){
@@ -12,9 +12,16 @@ START VOID FUNCTION merge_sort(Array<int> arr, int low, int high)
 }
 // Merge sort 
 
+/*
+ID ASSIGN ID                                {}
+    | WHILE ID DO stm						{}
+	| BLOCK_BEGIN stmlist BLOCK_END			{}
+	| IF ID THEN stm ELSE stm 				{}
+	;
+*/
 
 START FUNCTION void merge(Array<int> arr, int low, int high, int mid)
-    int i; 
+    int i = 1 + 2; 
     int j;
     int k; 
     int c[50];
@@ -57,7 +64,7 @@ END FUNCTION
 // read input array and call mergesort
 function int main()
 START FUNCTION
-    Array<Integer> myarray = new Array<int>(30);
+    array@int myarray = new Array<int>(30);
     Integer num;
     print("Enter number of elements to be sorted:");
     num = read();

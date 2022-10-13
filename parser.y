@@ -16,7 +16,7 @@ extern char * yytext;
 
 %token <sValue> ID
 %token <iValue> NUMBER
-%token WHILE BLOCK_BEGIN BLOCK_END DO IF THEN ELSE SEMI ASSIGN
+%token WHILE BLOCK_START BLOCK_END DO IF THEN ELSE SEMI ASSIGN TYPE COMMA TYPE_COMPOUSE
 
 %start prog
 
@@ -24,18 +24,58 @@ extern char * yytext;
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
 
-prog : stmlist {} 
+prog : functionDeclarationList stmlist 		{}
 	 ;
 
-stm : ID ASSIGN ID                          {}
-    | WHILE ID DO stm						{}
-	| BLOCK_BEGIN stmlist BLOCK_END			{}
-	| IF ID THEN stm ELSE stm 				{}
+blockType : 'FUNCTION' | 'FOR' | 'IF' | 'ELSE' | 'WHILE' | 'ELIF' ;
+
+startBlock : BLOCK_START blockType
+
+endBlock : BLOCK_END blockType
+
+functionDeclarationList : startBlock TYPE ID '(' argParamList ')'  		{}
+						| startBlock TYPE ID '(' ')' 					{}
+						;
+
+argParamList : argParam							  				   		{}	
+			 | argParamList COMMA argParam 			   				   	{}
+
+argParam : TYPE ID 														{}
+		 | TYPE_COMPOUSE '@' TYPE ID									{}
+
+
+stmlist : stm															{}
+		| stmlist SEMI stm   											{}
+	    ;
+
+stm : assg SEMI
+	| ;
+
+assg : TYPE ID ASSIGN exp 												{}
+	 | TYPE ID 															{}
+	 | TYPE_COMPOUSE '@' TYPE ID ASSIGN exp 							{}
+	 | TYPE_COMPOUSE '@' TYPE ID 										{}
+	 ;
+
+exp : ID 																{}
+	| compoundOperator 													{}
+	| functioCall														{}
+	| LITERAL
 	;
 	
-stmlist : stm								{}
-		| stmlist SEMI stm   				{}
-	    ;
+functioCall : ID '(' argValueList ')' 									{}
+			| ID '(' ')'												{}
+			;	
+
+argValueList : argValue 												{}
+		  | argValueList COMMA argValue									{}
+		  ;
+
+argValue : ID | LITERAL | exp;  										{}
+
+compoundOperator : ; // Expressões com valores mateticos trabalhdno com operaadores ex: 1 + 1 ou 2 * x  * (1 + 1)
+
+operator: ; 
 
 %% /* Fim da segunda seção */
 

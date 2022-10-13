@@ -11,14 +11,15 @@
 [0-9]+           	    {yylval.iValue = atoi(yytext); 
                        return NUMBER;}
 "while"      			    {return(WHILE);}
-"begin"      			    {return(BLOCK_BEGIN);}
+"start"      			    {return(BLOCK_START);}
 "end"      				    {return(BLOCK_END);}
 "do"      				    {return(DO);}
 "if"      				    {return(IF);}
 "then"      			    {return(THEN);}
 "else"      			    {return(ELSE);}
 ";"      				      {return(SEMI);}
-":="					        {return ASSIGN;}
+"="					          {return ASSIGN;}
+","                   {return COMMA;}
 [a-zA-Z][a-zA-Z0-9]*	{yylval.sValue = strdup(yytext); 
                        return ID;}
 .                      {yyerror("invalid character");}
