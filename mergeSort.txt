@@ -1,4 +1,4 @@
-function void merge_sort(Array<int> arr, int low, int high)
+START VOID FUNCTION merge_sort(Array<int> arr, int low, int high)
 {
     int mid;
     if (low < high){
@@ -11,9 +11,10 @@ function void merge_sort(Array<int> arr, int low, int high)
     }
 }
 // Merge sort 
-function void merge(Array<int> arr, int low, int high, int mid)
-START_FUNCTION
-    int i;
+
+
+START FUNCTION void merge(Array<int> arr, int low, int high, int mid)
+    int i; 
     int j;
     int k; 
     int c[50];
@@ -22,54 +23,56 @@ START_FUNCTION
     j = mid + 1;
     while (i <= mid && j <= high) {
         if (arr[i] < arr[j]) 
-        START_IF
+        START IF
             c[k] = arr[i];
             k++;
             i++;
-        END_IF
+        END IF
         else  
-        START_ELSE
+        START ELSE
             c[k] = arr[j];
             k++;
             j++;
-        END_ELSE
+        END ELSE
         
     }
     while (i <= mid) 
-    START_WHILE
+    START WHILE
         c[k] = arr[i];
         k++;
         i++;
-    END_WHILE
+    END WHILE
     while (j <= high) 
-    START_WHILE
+    START WHILE
         c[k] = arr[j];
         k++;
         j++;
-    END_WHILE
+    END WHILE
     for (i = low; i < k; i++)  
-    START_FOR
+    START FOR
         arr[i] = c[i];
-    END_FOR
-END_FUNCTION
+    END FOR
+END FUNCTION
+
 // read input array and call mergesort
 function int main()
-START_FUNCTION
-    Array<Integer> myarray[30] = new Array<int>(30);
+START FUNCTION
+    Array<Integer> myarray = new Array<int>(30);
     Integer num;
     print("Enter number of elements to be sorted:");
     num = read();
     print("Enter ") 
     print(num)
     print(" elements to be sorted:");
-    for (int i = 0; i < num; i++) START_FOR
+    for (int i = 0; i < num; i++) 
+    START FOR
         myarray[i] = read();
-    END_FOR
+    END FOR
     merge_sort(myarray, 0, num-1);
     print("Sorted array\n");
     for (int i = 0; i < num; i++)
-    START_FOR
+    START FOR
         print(myarray[i])
         print("\t");
-    END_FOR
-END_FUNCTION
+    END FOR
+END FUNCTION
