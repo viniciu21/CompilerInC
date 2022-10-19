@@ -74,10 +74,10 @@ function int main()
     int num;
     print("Enter number of elements to be sorted:");
     num = read();
-    print("Enter ") 
-    print(num)
+    print("Enter "); 
+    print(num);
     print(" elements to be sorted:");
-    for (int i = 0; i < num; i++) 
+    for (int i = 0; i < num; i++);
     
         myarray[i] = read();
     END FOR
@@ -85,7 +85,7 @@ function int main()
     print("Sorted array\n");
     for (int i = 0; i < num; i++)
     
-        print(myarray[i])
+        print(myarray[i]);
         print("\t");
     END FOR
 END FUNCTION
