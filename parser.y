@@ -16,7 +16,7 @@ extern char * yytext;
 
 %token <sValue> ID
 %token <iValue> NUMBER
-%token WHILE BLOCK_START BLOCK_END DO IF THEN ELSE SEMI ASSIGN TYPE COMMA TYPE_COMPOUSE
+%token WHILE BLOCK_START BLOCK_END DO IF THEN ELSE SEMI ASSIGN TYPE COMMA TYPECOMPOUSE
 
 %start prog
 
@@ -24,58 +24,171 @@ extern char * yytext;
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
 
-prog : functionDeclarationList stmlist 		{}
-	 ;
+prog : alts ;
+
+alts : alt | alts alt;
+
+alt : functionDefinitionList | declarationList;
+
+functionDefinitionList	: functionDefinitionList 						{}
+						| functionDefinition functionDefinitionList 	{}
+
+functionDefinition 	: functionDeclaration compoundStatement	endBlock	{}
+					;
+
+compoundStatement 	:  	statementList  									{}
+					|  	declarationList 								{}
+					|  	declarationList statementList 					{}
+					;
+
+statementList   : statement | statementList statement ;
+
+declarationList : declaration 			   	   {}
+				| declarationList declaration  {} 
+				;
+
+declaration	: declarationSpecifiers initDeclaratorList ';';
+
+declarationSpecifiers: typeSpecifier;
+
+initDeclaratorList
+	: initDeclarator
+	| initDeclaratorList ',' initDeclarator
+	;
+
+initDeclarator : declarator
+			   | declarator ASSIGN initializer
+
+declarator	: IDS ;
+
+constantExpression
+	: conditionalExpression
+	;
+
+initializer : assgExpression
+	| '{' initializerList '}'
+	| '{' initializerList ',' '}'
+	;
+
+initializerList
+	: initializer
+	| initializerList ',' initializer
+	;
+
+assgExpression: conditionalExpression {};
+
+primaryExpression
+	: ID
+	| CONSTANT
+	| STRING_LITERAL
+	| '(' expression ')'
+	;
+
+expression
+	: assgExpression
+	| expression ',' assgExpression
+	;
+
+conditionalExpression: OrExpression
+	| OrExpression '?' expression ':' conditionalExpression {}
+	; 
+
+OrExpression: AndExpression
+	| OrExpression OR_OP AndExpression
+	;
+
+AndExpression: EqExpression 
+	| AndExpression EQ_OP EqExpression
+	;
+
+relationExpression
+	: additiveExpression
+	| relationExpression '<' additiveExpression
+	| relationExpression '>' additiveExpression
+	| relationExpression LE_OP additiveExpression
+	| relationExpression GE_OP additiveExpression
+	;
+
+additiveExpression 
+	: multiplicativeExpression
+	| additiveExpression '+' multiplicativeExpression
+	| additiveExpression '-' multiplicativeExpression
+	;
+
+multiplicativeExpression
+	: multiplicativeExpression '*' primaryExpression
+	| multiplicativeExpression '/' primaryExpression
+	| multiplicativeExpression '%' primaryExpression
+	;
+
+EqExpression
+	: relationExpression
+	| EqExpression EQ_OP relationExpression
+	| EqExpression NE_OP relationExpression
+	;
+
+typeSpecifier : TYPE         											{}
+			  | typeCompouse 											{}
+			  ;
+
+IDS : ID {} 
+	| IDS ',' ID {}
+	;
+
+statement
+	: labeledStatement
+	| compoundStatement
+	| expressionStatement 
+	| jumpStatement;
+
+labeledStatement 
+	: CASE constantExpression ':' statement
+	| DEFAULT ':' statement
+	;
+
+selectionStatement
+	: IF '(' expression ')' statement
+	| IF '(' expression ')' statement ELSE statement
+	| SWITCH '(' expression ')' statement
+	;
+
+iterationStatement
+	: WHILE '(' expression ')' statement
+	| DO statement WHILE '(' expression ')' ';'
+	| FOR '(' expressionStatement expressionStatement ')' statement
+	| FOR '(' expressionStatement expressionStatement expression ')' statement
+	;
+
+expressionStatement
+	: ';'
+	| expression ';'
+	;
+
+jumpStatement
+	: CONTINUE ';'
+	| BREAK ';'
+	| RETURN ';'
+	| RETURN expression ';'
+	;
+
+typeCompouse  : TYPECOMPOUSE '@' TYPE {}
+
+functionDeclaration :  TYPE ID '(' argParamList ')' 					{}
+					|  TYPE ID '(' ')'  								{}
+					|  TYPECOMPOUSE ID '(' argParamList ')' 			{}
+					|  TYPECOMPOUSE ID '(' ')'  						{}
+					;
 
 blockType : 'FUNCTION' | 'FOR' | 'IF' | 'ELSE' | 'WHILE' | 'ELIF' ;
 
-startBlock : BLOCK_START blockType
-
 endBlock : BLOCK_END blockType
-
-functionDeclarationList : startBlock TYPE ID '(' argParamList ')'  		{}
-						| startBlock TYPE ID '(' ')' 					{}
-						;
 
 argParamList : argParam							  				   		{}	
 			 | argParamList COMMA argParam 			   				   	{}
 
 argParam : TYPE ID 														{}
 		 | TYPE_COMPOUSE '@' TYPE ID									{}
-
-
-stmlist : stm															{}
-		| stmlist SEMI stm   											{}
-	    ;
-
-stm : assg SEMI
-	| ;
-
-assg : TYPE ID ASSIGN exp 												{}
-	 | TYPE ID 															{}
-	 | TYPE_COMPOUSE '@' TYPE ID ASSIGN exp 							{}
-	 | TYPE_COMPOUSE '@' TYPE ID 										{}
-	 ;
-
-exp : ID 																{}
-	| compoundOperator 													{}
-	| functioCall														{}
-	| LITERAL
-	;
-	
-functioCall : ID '(' argValueList ')' 									{}
-			| ID '(' ')'												{}
-			;	
-
-argValueList : argValue 												{}
-		  | argValueList COMMA argValue									{}
-		  ;
-
-argValue : ID | LITERAL | exp;  										{}
-
-compoundOperator : ; // Expressões com valores mateticos trabalhdno com operaadores ex: 1 + 1 ou 2 * x  * (1 + 1)
-
-operator: ; 
+		 ;
 
 %% /* Fim da segunda seção */
 

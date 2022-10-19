@@ -1,5 +1,5 @@
-START FUNCTION VOID merge_sort(Array<int> arr, int low, int high)
-{
+function void merge_sort(array@int arr, int low, int high)
+
     int mid;
     if (low < high){
         //divide the array at mid and sort independently using merge sort
@@ -9,18 +9,10 @@ START FUNCTION VOID merge_sort(Array<int> arr, int low, int high)
         //merge or conquer sorted arrays
         merge(arr,low,high,mid);
     }
-}
-// Merge sort 
+end function
 
-/*
-ID ASSIGN ID                                {}
-    | WHILE ID DO stm						{}
-	| BLOCK_BEGIN stmlist BLOCK_END			{}
-	| IF ID THEN stm ELSE stm 				{}
-	;
-*/
 
-START FUNCTION void merge(Array<int> arr, int low, int high, int mid)
+function void merge(array@int arr, int low, int high, int mid)
     int i = 1 + 2; 
     int j;
     int k; 
@@ -30,55 +22,69 @@ START FUNCTION void merge(Array<int> arr, int low, int high, int mid)
     j = mid + 1;
     while (i <= mid && j <= high) {
         if (arr[i] < arr[j]) 
-        START IF
             c[k] = arr[i];
             k++;
             i++;
         END IF
         else  
-        START ELSE
+        
             c[k] = arr[j];
             k++;
             j++;
         END ELSE
         
-    }
+    END WHILE
+    
     while (i <= mid) 
-    START WHILE
+    
         c[k] = arr[i];
         k++;
         i++;
     END WHILE
     while (j <= high) 
-    START WHILE
+    
         c[k] = arr[j];
         k++;
         j++;
     END WHILE
     for (i = low; i < k; i++)  
-    START FOR
+    
         arr[i] = c[i];
     END FOR
 END FUNCTION
 
-// read input array and call mergesort
 function int main()
-START FUNCTION
-    array@int myarray = new Array<int>(30);
-    Integer num;
+
+    array@int myarray = [1, 2 ,3 ,4 ,5];
+
+    int valor = myarray[1]
+
+    array@int myarray2 = new array@int(12);
+    mtz@int mymtrz = new mtz@int(12, 12);
+    mtz@int mymtrz2 = [[1, 2, 3, 4, 5], 
+                       [1, 2, 3, 4, 5],
+                       [1, 2, 3, 4, 5]];
+
+    int valor = myarray2[1][1]
+
+    set@string mySet = {1, 3, 4, 5, 6 ,7 ,8} 
+    set@string mySet = new set@string();
+    string valor = mySet.catch(var);
+
+    int num;
     print("Enter number of elements to be sorted:");
     num = read();
     print("Enter ") 
     print(num)
     print(" elements to be sorted:");
     for (int i = 0; i < num; i++) 
-    START FOR
+    
         myarray[i] = read();
     END FOR
     merge_sort(myarray, 0, num-1);
     print("Sorted array\n");
     for (int i = 0; i < num; i++)
-    START FOR
+    
         print(myarray[i])
         print("\t");
     END FOR
