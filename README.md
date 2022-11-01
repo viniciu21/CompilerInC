@@ -2,6 +2,8 @@
 
 ##### Linguagem feita em C para a disciplina de Engenharia de Linguagens.
 
+Nessa disciplina, devemos desenvolver uma nova linguagem, usando C, yacc e lex até o presente momento.
+
 ## Autores
 
 Herbet Pessoa Da Silva Filho
@@ -22,10 +24,26 @@ Passando pelo analisador léxico da nossa linguagem o código ira gerar uma said
 
 Para rodar o analisador lexico da linguagem siga os seguintes passos:
 
+Carregar o lex
+
+```
 $ lex lexer.l
+```
 
+Carregar o yacc
+
+```
 $ yacc parser.y -d
+```
 
+Gerar o analisador da linguagem
+
+```
 $ gcc lex.yy.c -o parser
+```
 
+Rodar o analisador no mergeSort de exemplo
+
+```
 $ ./parser < mergeSort.txt
+```
