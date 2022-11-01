@@ -27,13 +27,7 @@ Para rodar o analisador lexico da linguagem siga os seguintes passos:
 Carregar o lex
 
 ```
-$ lex lexer.l
-```
-
-Carregar o yacc
-
-```
-$ yacc parser.y -d
+$ flex lexer.l
 ```
 
 Gerar o analisador da linguagem
