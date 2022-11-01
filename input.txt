@@ -19,7 +19,7 @@ IF
 GREATER THAN
 ID(high)
 )
-.omment: //divide the array at mid and sort independently using merge sort
+Comment: //divide the array at mid and sort independently using merge sort.
 ID(mid)
 =
 (ID(low)
@@ -47,7 +47,7 @@ NUMBER(1)
 ID(high)
 )
 ;
-.omment: //merge or conquer sorted arrays
+Comment: //merge or conquer sorted arrays.
 ID(merge)
 (ID(arr)
 ,

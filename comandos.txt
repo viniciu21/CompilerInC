@@ -1,4 +1,4 @@
 $ lex lexer.l
 $ yacc parser.y -d
-$ gcc lex.yy.c y.tab.c -o parser
-$ ./parser < input.txt
+$ gcc lex.yy.c -o parser
+$ ./parser < mergeSort.txt
