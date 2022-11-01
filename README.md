@@ -1,8 +1,8 @@
 # Compiler in C
 
-Linguagem feita em C para a disciplina de Engenharia de Linguagens.
+##### Linguagem feita em C para a disciplina de Engenharia de Linguagens.
 
-Autores:
+## Autores
 
 Herbet Pessoa Da Silva Filho
 
@@ -14,9 +14,13 @@ Pedro Victor Barbosa Araujo
 
 Vinicius Oliveira Da Silva
 
+## Introdução
+
 Passando pelo analisador léxico da nossa linguagem o código ira gerar uma saida com os devidos tokens e lexemas
 
-Para rodar o analisador lexico siga os seguintes passos:
+## Execução
+
+Para rodar o analisador lexico da linguagem siga os seguintes passos:
 
 $ lex lexer.l
 
