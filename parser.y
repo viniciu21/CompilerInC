@@ -16,7 +16,13 @@ extern char * yytext;
 
 %token <sValue> ID
 %token <iValue> NUMBER
-%token WHILE BLOCK_START BLOCK_END DO IF THEN ELSE SEMI ASSIGN TYPE COMMA TYPECOMPOUSE
+%token WHILE BLOCK_START BLOCK_END DO IF 
+%token THEN ELSE SEMI ASSIGN TYPE 
+%token COMMA TYPECOMPOUSE CONSTANT 
+%token STRING_LITERAL OR_OP EQ_OP 
+%token LE_OP DEFAULT CASE FOR CONTINUE BREAK RETURN GE_OP
+%token NE_OP SWITCH TYPE_COMPOUSE
+%token LEFT_PARENTHESIS RIGHT_PARENTHESIS AT
 
 %start prog
 
@@ -47,7 +53,7 @@ declarationList : declaration 			   	   {}
 				| declarationList declaration  {} 
 				;
 
-declaration	: declarationSpecifiers initDeclaratorList ';';
+declaration	: declarationSpecifiers initDeclaratorList SEMI;
 
 declarationSpecifiers: typeSpecifier;
 
@@ -81,7 +87,7 @@ primaryExpression
 	: ID
 	| CONSTANT
 	| STRING_LITERAL
-	| '(' expression ')'
+	| LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
 	;
 
 expression
@@ -147,36 +153,36 @@ labeledStatement
 	;
 
 selectionStatement
-	: IF '(' expression ')' statement
-	| IF '(' expression ')' statement ELSE statement
-	| SWITCH '(' expression ')' statement
+	: IF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS statement
+	| IF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS statement ELSE statement
+	| SWITCH LEFT_PARENTHESIS expression RIGHT_PARENTHESIS statement
 	;
 
 iterationStatement
-	: WHILE '(' expression ')' statement
-	| DO statement WHILE '(' expression ')' ';'
-	| FOR '(' expressionStatement expressionStatement ')' statement
-	| FOR '(' expressionStatement expressionStatement expression ')' statement
+	: WHILE LEFT_PARENTHESIS expression RIGHT_PARENTHESIS statement
+	| DO statement WHILE LEFT_PARENTHESIS expression RIGHT_PARENTHESIS SEMI
+	| FOR LEFT_PARENTHESIS expressionStatement expressionStatement RIGHT_PARENTHESIS statement
+	| FOR LEFT_PARENTHESIS expressionStatement expressionStatement expression RIGHT_PARENTHESIS statement
 	;
 
 expressionStatement
-	: ';'
-	| expression ';'
+	: SEMI
+	| expression SEMI
 	;
 
 jumpStatement
-	: CONTINUE ';'
-	| BREAK ';'
-	| RETURN ';'
-	| RETURN expression ';'
+	: CONTINUE SEMI
+	| BREAK SEMI
+	| RETURN SEMI
+	| RETURN expression SEMI
 	;
 
-typeCompouse  : TYPECOMPOUSE '@' TYPE {}
+typeCompouse  : TYPECOMPOUSE AT TYPE {}
 
-functionDeclaration :  TYPE ID '(' argParamList ')' 					{}
-					|  TYPE ID '(' ')'  								{}
-					|  TYPECOMPOUSE ID '(' argParamList ')' 			{}
-					|  TYPECOMPOUSE ID '(' ')'  						{}
+functionDeclaration :  TYPE ID LEFT_PARENTHESIS argParamList RIGHT_PARENTHESIS 					{}
+					|  TYPE ID LEFT_PARENTHESIS RIGHT_PARENTHESIS  								{}
+					|  TYPECOMPOUSE ID LEFT_PARENTHESIS argParamList RIGHT_PARENTHESIS 			{}
+					|  TYPECOMPOUSE ID LEFT_PARENTHESIS RIGHT_PARENTHESIS  						{}
 					;
 
 blockType : 'FUNCTION' | 'FOR' | 'IF' | 'ELSE' | 'WHILE' | 'ELIF' ;
@@ -187,7 +193,7 @@ argParamList : argParam							  				   		{}
 			 | argParamList COMMA argParam 			   				   	{}
 
 argParam : TYPE ID 														{}
-		 | TYPE_COMPOUSE '@' TYPE ID									{}
+		 | TYPE_COMPOUSE AT TYPE ID										{}
 		 ;
 
 %% /* Fim da segunda seção */

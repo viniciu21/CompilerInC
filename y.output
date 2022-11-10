@@ -1,0 +1,552 @@
+Nonterminals useless in grammar
+
+    functionDefinitionList
+    functionDefinition
+    compoundStatement
+    statementList
+    constantExpression
+    initializer
+    initializerList
+    assgExpression
+    primaryExpression
+    expression
+    conditionalExpression
+    OrExpression
+    AndExpression
+    relationExpression
+    additiveExpression
+    multiplicativeExpression
+    EqExpression
+    statement
+    labeledStatement
+    selectionStatement
+    iterationStatement
+    expressionStatement
+    jumpStatement
+    functionDeclaration
+    blockType
+    endBlock
+    argParamList
+    argParam
+    stm
+
+
+Terminals unused in grammar
+
+    NUMBER
+    WHILE
+    BLOCK_START
+    BLOCK_END
+    DO
+    IF
+    THEN
+    ELSE
+    SEMI
+    ASSIGN
+    COMMA
+    CONSTANT
+    STRING_LITERAL
+    OR_OP
+    EQ_OP
+    LE_OP
+    DEFAULT
+    CASE
+    FOR
+    CONTINUE
+    BREAK
+    RETURN
+    GE_OP
+    NE_OP
+    SWITCH
+    TYPE_COMPOUSE
+    '{'
+    '}'
+    '('
+    ')'
+    '?'
+    ':'
+    '<'
+    '>'
+    '+'
+    '-'
+    '*'
+    '/'
+    '%'
+    'F'
+    'I'
+    'E'
+    'W'
+
+
+Rules useless in grammar
+
+   18 alt: functionDefinitionList
+
+   19 functionDefinitionList: functionDefinitionList
+   20                       | functionDefinition functionDefinitionList
+
+   21 functionDefinition: functionDeclaration compoundStatement endBlock
+
+   22 compoundStatement: statementList
+   23                  | declarationList
+   24                  | declarationList statementList
+
+   25 statementList: statement
+   26              | statementList statement
+
+   27 initDeclarator: declarator ASSIGN initializer
+
+   28 constantExpression: conditionalExpression
+
+   29 initializer: assgExpression
+   30            | '{' initializerList '}'
+   31            | '{' initializerList ',' '}'
+
+   32 initializerList: initializer
+   33                | initializerList ',' initializer
+
+   34 assgExpression: conditionalExpression
+
+   35 primaryExpression: ID
+   36                  | CONSTANT
+   37                  | STRING_LITERAL
+   38                  | '(' expression ')'
+
+   39 expression: assgExpression
+   40           | expression ',' assgExpression
+
+   41 conditionalExpression: OrExpression
+   42                      | OrExpression '?' expression ':' conditionalExpression
+
+   43 OrExpression: AndExpression
+   44             | OrExpression OR_OP AndExpression
+
+   45 AndExpression: EqExpression
+   46              | AndExpression EQ_OP EqExpression
+
+   47 relationExpression: additiveExpression
+   48                   | relationExpression '<' additiveExpression
+   49                   | relationExpression '>' additiveExpression
+   50                   | relationExpression LE_OP additiveExpression
+   51                   | relationExpression GE_OP additiveExpression
+
+   52 additiveExpression: multiplicativeExpression
+   53                   | additiveExpression '+' multiplicativeExpression
+   54                   | additiveExpression '-' multiplicativeExpression
+
+   55 multiplicativeExpression: multiplicativeExpression '*' primaryExpression
+   56                         | multiplicativeExpression '/' primaryExpression
+   57                         | multiplicativeExpression '%' primaryExpression
+
+   58 EqExpression: relationExpression
+   59             | EqExpression EQ_OP relationExpression
+   60             | EqExpression NE_OP relationExpression
+
+   61 statement: labeledStatement
+   62          | compoundStatement
+   63          | expressionStatement
+   64          | jumpStatement
+
+   65 labeledStatement: CASE constantExpression ':' statement
+   66                 | DEFAULT ':' statement
+
+   67 selectionStatement: IF '(' expression ')' statement
+   68                   | IF '(' expression ')' statement ELSE statement
+   69                   | SWITCH '(' expression ')' statement
+
+   70 iterationStatement: WHILE '(' expression ')' statement
+   71                   | DO statement WHILE '(' expression ')' ';'
+   72                   | FOR '(' expressionStatement expressionStatement ')' statement
+   73                   | FOR '(' expressionStatement expressionStatement expression ')' statement
+
+   74 expressionStatement: ';'
+   75                    | expression ';'
+
+   76 jumpStatement: CONTINUE ';'
+   77              | BREAK ';'
+   78              | RETURN ';'
+   79              | RETURN expression ';'
+
+   80 functionDeclaration: TYPE ID '(' argParamList ')'
+   81                    | TYPE ID '(' ')'
+   82                    | TYPECOMPOUSE ID '(' argParamList ')'
+   83                    | TYPECOMPOUSE ID '(' ')'
+
+   84 blockType: 'F'
+   85          | 'F'
+   86          | 'I'
+   87          | 'E'
+   88          | 'W'
+   89          | 'E'
+
+   90 endBlock: BLOCK_END blockType
+
+   91 argParamList: argParam
+   92             | argParamList COMMA argParam
+
+   93 argParam: TYPE ID
+   94         | TYPE_COMPOUSE '@' TYPE ID
+
+
+State 6 conflicts: 2 shift/reduce
+State 19 conflicts: 1 shift/reduce
+
+
+Grammar
+
+    0 $accept: prog $end
+
+    1 prog: alts
+
+    2 alts: alt
+    3     | alts alt
+
+    4 alt: declarationList
+
+    5 declarationList: declaration
+    6                | declarationList declaration
+
+    7 declaration: declarationSpecifiers initDeclaratorList ';'
+
+    8 declarationSpecifiers: typeSpecifier
+
+    9 initDeclaratorList: initDeclarator
+   10                   | initDeclaratorList ',' initDeclarator
+
+   11 initDeclarator: declarator
+
+   12 declarator: IDS
+
+   13 typeSpecifier: TYPE
+   14              | typeCompouse
+
+   15 IDS: ID
+   16    | IDS ',' ID
+
+   17 typeCompouse: TYPECOMPOUSE '@' TYPE
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    '%' (37)
+    '(' (40)
+    ')' (41)
+    '*' (42)
+    '+' (43)
+    ',' (44) 10 16
+    '-' (45)
+    '/' (47)
+    ':' (58)
+    ';' (59) 7
+    '<' (60)
+    '>' (62)
+    '?' (63)
+    '@' (64) 17
+    'E' (69)
+    'F' (70)
+    'I' (73)
+    'W' (87)
+    '{' (123)
+    '}' (125)
+    error (256)
+    ID <sValue> (258) 15 16
+    NUMBER <iValue> (259)
+    WHILE (260)
+    BLOCK_START (261)
+    BLOCK_END (262)
+    DO (263)
+    IF (264)
+    THEN (265)
+    ELSE (266)
+    SEMI (267)
+    ASSIGN (268)
+    TYPE (269) 13 17
+    COMMA (270)
+    TYPECOMPOUSE (271) 17
+    CONSTANT (272)
+    STRING_LITERAL (273)
+    OR_OP (274)
+    EQ_OP (275)
+    LE_OP (276)
+    DEFAULT (277)
+    CASE (278)
+    FOR (279)
+    CONTINUE (280)
+    BREAK (281)
+    RETURN (282)
+    GE_OP (283)
+    NE_OP (284)
+    SWITCH (285)
+    TYPE_COMPOUSE (286)
+
+
+Nonterminals, with rules where they appear
+
+    $accept (52)
+        on left: 0
+    prog (53)
+        on left: 1
+        on right: 0
+    alts (54)
+        on left: 2 3
+        on right: 1 3
+    alt (55)
+        on left: 4
+        on right: 2 3
+    declarationList (56)
+        on left: 5 6
+        on right: 4 6
+    declaration (57)
+        on left: 7
+        on right: 5 6
+    declarationSpecifiers (58)
+        on left: 8
+        on right: 7
+    initDeclaratorList (59)
+        on left: 9 10
+        on right: 7 10
+    initDeclarator (60)
+        on left: 11
+        on right: 9 10
+    declarator (61)
+        on left: 12
+        on right: 11
+    typeSpecifier (62)
+        on left: 13 14
+        on right: 8
+    IDS (63)
+        on left: 15 16
+        on right: 12 16
+    typeCompouse (64)
+        on left: 17
+        on right: 14
+
+
+State 0
+
+    0 $accept: . prog $end
+
+    TYPE          shift, and go to state 1
+    TYPECOMPOUSE  shift, and go to state 2
+
+    prog                   go to state 3
+    alts                   go to state 4
+    alt                    go to state 5
+    declarationList        go to state 6
+    declaration            go to state 7
+    declarationSpecifiers  go to state 8
+    typeSpecifier          go to state 9
+    typeCompouse           go to state 10
+
+
+State 1
+
+   13 typeSpecifier: TYPE .
+
+    $default  reduce using rule 13 (typeSpecifier)
+
+
+State 2
+
+   17 typeCompouse: TYPECOMPOUSE . '@' TYPE
+
+    '@'  shift, and go to state 11
+
+
+State 3
+
+    0 $accept: prog . $end
+
+    $end  shift, and go to state 12
+
+
+State 4
+
+    1 prog: alts .
+    3 alts: alts . alt
+
+    TYPE          shift, and go to state 1
+    TYPECOMPOUSE  shift, and go to state 2
+
+    $default  reduce using rule 1 (prog)
+
+    alt                    go to state 13
+    declarationList        go to state 6
+    declaration            go to state 7
+    declarationSpecifiers  go to state 8
+    typeSpecifier          go to state 9
+    typeCompouse           go to state 10
+
+
+State 5
+
+    2 alts: alt .
+
+    $default  reduce using rule 2 (alts)
+
+
+State 6
+
+    4 alt: declarationList .
+    6 declarationList: declarationList . declaration
+
+    TYPE          shift, and go to state 1
+    TYPECOMPOUSE  shift, and go to state 2
+
+    TYPE          [reduce using rule 4 (alt)]
+    TYPECOMPOUSE  [reduce using rule 4 (alt)]
+    $default      reduce using rule 4 (alt)
+
+    declaration            go to state 14
+    declarationSpecifiers  go to state 8
+    typeSpecifier          go to state 9
+    typeCompouse           go to state 10
+
+
+State 7
+
+    5 declarationList: declaration .
+
+    $default  reduce using rule 5 (declarationList)
+
+
+State 8
+
+    7 declaration: declarationSpecifiers . initDeclaratorList ';'
+
+    ID  shift, and go to state 15
+
+    initDeclaratorList  go to state 16
+    initDeclarator      go to state 17
+    declarator          go to state 18
+    IDS                 go to state 19
+
+
+State 9
+
+    8 declarationSpecifiers: typeSpecifier .
+
+    $default  reduce using rule 8 (declarationSpecifiers)
+
+
+State 10
+
+   14 typeSpecifier: typeCompouse .
+
+    $default  reduce using rule 14 (typeSpecifier)
+
+
+State 11
+
+   17 typeCompouse: TYPECOMPOUSE '@' . TYPE
+
+    TYPE  shift, and go to state 20
+
+
+State 12
+
+    0 $accept: prog $end .
+
+    $default  accept
+
+
+State 13
+
+    3 alts: alts alt .
+
+    $default  reduce using rule 3 (alts)
+
+
+State 14
+
+    6 declarationList: declarationList declaration .
+
+    $default  reduce using rule 6 (declarationList)
+
+
+State 15
+
+   15 IDS: ID .
+
+    $default  reduce using rule 15 (IDS)
+
+
+State 16
+
+    7 declaration: declarationSpecifiers initDeclaratorList . ';'
+   10 initDeclaratorList: initDeclaratorList . ',' initDeclarator
+
+    ';'  shift, and go to state 21
+    ','  shift, and go to state 22
+
+
+State 17
+
+    9 initDeclaratorList: initDeclarator .
+
+    $default  reduce using rule 9 (initDeclaratorList)
+
+
+State 18
+
+   11 initDeclarator: declarator .
+
+    $default  reduce using rule 11 (initDeclarator)
+
+
+State 19
+
+   12 declarator: IDS .
+   16 IDS: IDS . ',' ID
+
+    ','  shift, and go to state 23
+
+    ','       [reduce using rule 12 (declarator)]
+    $default  reduce using rule 12 (declarator)
+
+
+State 20
+
+   17 typeCompouse: TYPECOMPOUSE '@' TYPE .
+
+    $default  reduce using rule 17 (typeCompouse)
+
+
+State 21
+
+    7 declaration: declarationSpecifiers initDeclaratorList ';' .
+
+    $default  reduce using rule 7 (declaration)
+
+
+State 22
+
+   10 initDeclaratorList: initDeclaratorList ',' . initDeclarator
+
+    ID  shift, and go to state 15
+
+    initDeclarator  go to state 24
+    declarator      go to state 18
+    IDS             go to state 19
+
+
+State 23
+
+   16 IDS: IDS ',' . ID
+
+    ID  shift, and go to state 25
+
+
+State 24
+
+   10 initDeclaratorList: initDeclaratorList ',' initDeclarator .
+
+    $default  reduce using rule 10 (initDeclaratorList)
+
+
+State 25
+
+   16 IDS: IDS ',' ID .
+
+    $default  reduce using rule 16 (IDS)

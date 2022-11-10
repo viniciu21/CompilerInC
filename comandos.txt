@@ -1,4 +1,8 @@
-$ lex lexer.l
+$ flex lexer.l
 $ yacc parser.y -d
 $ gcc lex.yy.c -o parser
 $ ./parser < mergeSort.txt
+
+lex example4.l
+yacc example4.y -d -v -g  (-d: y.tab.h; -v: y.output; -g: y.dot [GraphViz])
+gcc lex.yy.c y.tab.c -o parser.exe 

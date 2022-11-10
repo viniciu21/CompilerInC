@@ -5,49 +5,49 @@
 %%
 
 
-"do"      				    {printf("DO\n");}
-"int"                 {printf("INTEGER\n");}
-"float"               {printf("FLOAT NUMBER\n");}
-"string"              {printf("STRING\n");}
-"bool"                {printf("BOOLEAN\n");}
-"set"                 {printf("SET\n");}
-"array"               {printf("ARRAY\n");}
-"matriz"              {printf("MATRIZ\n");}
-"void"                {printf("VOID\n");}
-"struct"              {printf("STRUCT\n");}
-";"      				      {printf(";\n");}
-"="					          {printf("=\n");}
-","                   {printf(",\n");}
-"@"                   {printf("@");}
-"("			              { printf("("); }
-")"			              { printf(")\n"); }
-"["			              { printf("]\n"); }
-"]"			              { printf("]\n"); }
-"-"			              { printf("MINUS\n"); }
-"+"			              { printf("PLUS\n"); }
-"*"			              { printf("MULT\n"); }
-"/"			              { printf("DIV\n"); }
-"<"		              	{ printf("GREATER THAN\n"); }
-">"			              { printf("LOWER THAN\n"); }
-"?"			              { printf("TERNARY OPERATOR\n"); }
-"&&"                  { printf("And Expression\n");}
-"||"                  { printf("Or Expression\n");}
-"<="			            { printf("lower of equal than\n"); }
-">="			            { printf("greater of equal than\n"); }
-"=="			            { printf("equal \n"); }
-"!="			            { printf("not equal\n"); }
+"do"      				    {return DO;}
+"int"                 {return INTEGER;}
+"float"               {return FLOAT NUMBER;}
+"string"              {return STRING;}
+"bool"                {return BOOLEAN;}
+"set"                 {return SET;}
+"array"               {return ARRAY;}
+"matriz"              {return MATRIZ;}
+"void"                {return VOID;}
+"struct"              {return STRUCT;}
+";"      				      {return SEMI;}
+"="					          {return EQ;}
+","                   {return COMMA;}
+"@"                   {return AT;}
+"("			              { return (); }
+")"			              { return ); }
+"["			              { return ]; }
+"]"			              { return ]; }
+"-"			              { return MINUS; }
+"+"			              { return PLUS; }
+"*"			              { return MULT; }
+"/"			              { return DIV; }
+"<"		              	{ return GREATER THAN; }
+">"			              { return LOWER THAN; }
+"?"			              { return TERNARY OPERATOR; }
+"&&"                  { return And Expression;}
+"||"                  { return Or Expression;}
+"<="			            { return lower of equal than; }
+">="			            { return greater of equal than; }
+"=="			            { return equal ; }
+"!="			            { return not equal; }
 [ \n\t\r]+            {}
-[0-9]+           	    { printf("NUMBER(%s)\n",yytext);}
-(\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\/)|(\/\/.*) {printf("Comment: %s.\n", yytext);}
-[for|FOR]*            {printf("FOR\n");}
-[while|WHILE]*      	{printf("WHILE\n");}
-[end|END]*      		  {printf("BLOCK_END\n");}
-[if|IF]*              {printf("IF\n");}
-[function|FUNCTION]*  {printf("FUNCTION\n");}
-[else|ELSE]*      	  {printf("ELSE\n");}
-L?\"(\\.|[^\\"])*\"	  { printf("STRING_LITERAL\n"); }
-([a-zA-Z]+(?:_[a-zA-Z]+)*)	{printf("ID(%s)\n",yytext);}
-.                     {printf("invalid character (%s) \n", yytext);}
+[0-9]+           	    { return NUMBER(%s)\n",yytext);}
+(\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\/)|(\/\/.*) {return Comment: %s.\n", yytext);}
+"for"                 {return FOR;}
+"while"      	        {return WHILE;}
+"end"      		        {return BLOCK_END;}
+"if"                  {return IF;}
+"funtion"             {return FUNCTION;}
+"else"      	        {return ELSE;}
+L?\"(\\.|[^\\"])*\"	  {return STRING_LITERAL; }
+([a-zA-Z]+(?:_[a-zA-Z]+)*)	{return ID;}
+.                     {return invalid character (%s) \n", yytext);}
 
 %%
 
