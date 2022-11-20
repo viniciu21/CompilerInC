@@ -15,27 +15,27 @@
 "matriz"              {return MATRIZ;}
 "void"                {return VOID;}
 "struct"              {return STRUCT;}
-";"      				      {return SEMI;}
-"="					          {return EQ;}
-","                   {return COMMA;}
-"@"                   {return AT;}
-"("			              { return (); }
-")"			              { return ); }
-"["			              { return ]; }
-"]"			              { return ]; }
-"-"			              { return MINUS; }
-"+"			              { return PLUS; }
-"*"			              { return MULT; }
-"/"			              { return DIV; }
-"<"		              	{ return GREATER THAN; }
-">"			              { return LOWER THAN; }
-"?"			              { return TERNARY OPERATOR; }
-"&&"                  { return And Expression;}
-"||"                  { return Or Expression;}
-"<="			            { return lower of equal than; }
-">="			            { return greater of equal than; }
-"=="			            { return equal ; }
-"!="			            { return not equal; }
+";"      				      {return ";";}
+"="					          {return "=";}
+","                   {return ",";}
+"@"                   {return "@";}
+"("			              { return "("; }
+")"			              { return ")"; }
+"["			              { return "]"; }
+"]"			              { return "]"; }
+"-"			              { return "-"; }
+"+"			              { return "+"; }
+"*"			              { return "*"; }
+"/"			              { return "/"; }
+"<"		              	{ return "<"; }
+">"			              { return ">"; }
+"?"			              { return "?"; }
+"&&"                  { return "&&";}
+"||"                  { return "||";}
+"<="			            { return "<="; }
+">="			            { return ">="; }
+"=="			            { return "==" ; }
+"!="			            { return "!="; }
 [ \n\t\r]+            {}
 [0-9]+           	    { return NUMBER(%s)\n",yytext);}
 (\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\/)|(\/\/.*) {return Comment: %s.\n", yytext);}

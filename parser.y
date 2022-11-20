@@ -63,7 +63,7 @@ initDeclaratorList
 	;
 
 initDeclarator : declarator
-			   | declarator ASSIGN initializer
+			   | declarator '=' initializer
 
 declarator	: IDS ;
 
@@ -87,7 +87,7 @@ primaryExpression
 	: ID
 	| CONSTANT
 	| STRING_LITERAL
-	| LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
+	| '(' expression ')'
 	;
 
 expression
@@ -100,19 +100,19 @@ conditionalExpression: OrExpression
 	; 
 
 OrExpression: AndExpression
-	| OrExpression OR_OP AndExpression
+	| OrExpression '||' AndExpression
 	;
 
 AndExpression: EqExpression 
-	| AndExpression EQ_OP EqExpression
+	| AndExpression '==' EqExpression
 	;
 
 relationExpression
 	: additiveExpression
 	| relationExpression '<' additiveExpression
 	| relationExpression '>' additiveExpression
-	| relationExpression LE_OP additiveExpression
-	| relationExpression GE_OP additiveExpression
+	| relationExpression '=>' additiveExpression
+	| relationExpression '=<' additiveExpression
 	;
 
 additiveExpression 
@@ -129,8 +129,8 @@ multiplicativeExpression
 
 EqExpression
 	: relationExpression
-	| EqExpression EQ_OP relationExpression
-	| EqExpression NE_OP relationExpression
+	| EqExpression '==' relationExpression
+	| EqExpression '!=' relationExpression
 	;
 
 typeSpecifier : TYPE         											{}
@@ -153,39 +153,39 @@ labeledStatement
 	;
 
 selectionStatement
-	: IF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS statement
-	| IF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS statement ELSE statement
-	| SWITCH LEFT_PARENTHESIS expression RIGHT_PARENTHESIS statement
+	: IF '(' expression ')' statement
+	| IF '(' expression ')' statement ELSE statement
+	| SWITCH '(' expression ')' statement
 	;
 
 iterationStatement
-	: WHILE LEFT_PARENTHESIS expression RIGHT_PARENTHESIS statement
-	| DO statement WHILE LEFT_PARENTHESIS expression RIGHT_PARENTHESIS SEMI
-	| FOR LEFT_PARENTHESIS expressionStatement expressionStatement RIGHT_PARENTHESIS statement
-	| FOR LEFT_PARENTHESIS expressionStatement expressionStatement expression RIGHT_PARENTHESIS statement
+	: WHILE '(' expression ')' statement
+	| DO statement WHILE '(' expression ')' SEMI
+	| FOR '(' expressionStatement expressionStatement ')' statement
+	| FOR '(' expressionStatement expressionStatement expression ')' statement
 	;
 
 expressionStatement
-	: SEMI
-	| expression SEMI
+	: ';'
+	| expression ';'
 	;
 
 jumpStatement
-	: CONTINUE SEMI
-	| BREAK SEMI
-	| RETURN SEMI
-	| RETURN expression SEMI
+	: CONTINUE ';'
+	| BREAK ';'
+	| RETURN ';'
+	| RETURN expression ';'
 	;
 
 typeCompouse  : TYPECOMPOUSE AT TYPE {}
 
-functionDeclaration :  TYPE ID LEFT_PARENTHESIS argParamList RIGHT_PARENTHESIS 					{}
-					|  TYPE ID LEFT_PARENTHESIS RIGHT_PARENTHESIS  								{}
-					|  TYPECOMPOUSE ID LEFT_PARENTHESIS argParamList RIGHT_PARENTHESIS 			{}
-					|  TYPECOMPOUSE ID LEFT_PARENTHESIS RIGHT_PARENTHESIS  						{}
+functionDeclaration :  TYPE ID '(' argParamList ')' 					{}
+					|  TYPE ID '(' ')'  								{}
+					|  TYPECOMPOUSE ID '(' argParamList ')' 			{}
+					|  TYPECOMPOUSE ID '(' ')'  						{}
 					;
 
-blockType : 'FUNCTION' | 'FOR' | 'IF' | 'ELSE' | 'WHILE' | 'ELIF' ;
+blockType : FUNCTION | FOR | IF | ELSE | WHILE ;
 
 endBlock : BLOCK_END blockType
 
