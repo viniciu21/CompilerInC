@@ -1,349 +1,168 @@
-FUNCTION
-VOID
-ID(merge_sort)
-(ARRAY
-@INTEGER
-ID(arr)
-,
-INTEGER
-ID(low)
-,
-INTEGER
-ID(high)
-)
-INTEGER
-ID(mid)
+functionDefinitionList	: functionDefinitionList 						{}
+						| functionDefinition functionDefinitionList 	{}
+						;
+
+
+compoundStatement 	:  	statementList  									{}
+					|  	declarationList 								{}
+					|  	declarationList statementList 					{}
+					;
+
+statementList   : statement 
+				| statementList statement ;
+
+statement : labeledStatement
+		  | compoundStatement
+		  | expressionStatement 
+		  | selectionStatement
+		  | jumpStatement;
+
+labeledStatement : ID ':' statement
+	| CASE constantExpression ':' statement
+	| DEFAULT ':' statement
+	;
+
+selectionStatement
+	: IF '(' expression ')' statement
+	| IF '(' expression ')' statement ELSE statement
+	| SWITCH '(' expression ')' statement
+	;
+
+iterationStatement
+	: WHILE '(' expression ')' statement
+	| DO statement WHILE '(' expression ')' SEMI
+	| FOR '(' expressionStatement expressionStatement ')' statement
+	| FOR '(' expressionStatement expressionStatement expression ')' statement
+	;
+
+expressionStatement
+	: ';'
+	| expression ';'
+	;
+
+jumpStatement
+	: CONTINUE ';'
+	| BREAK ';'
+	| RETURN ';'
+	| RETURN expression ';'
+	;
+
+declarationList : typeSpecifier initDeclaratorList ';' 			   	   {}
+				| declarationList typeSpecifier initDeclaratorList ';'  {} 
+				;
+
+initDeclaratorList
+	: initDeclarator
+	| initDeclaratorList ',' initDeclarator
+	;
+
+initDeclarator : Ids
+			   | Ids '=' initializer
+				;
+
+
+constantExpression
+	: conditionalExpression
+	;
+
+initializer : assgExpression
+	| '{' initializerList '}'
+	| '{' initializerList ',' '}'
+	;
+
+initializerList
+	: initializer
+	| initializerList ',' initializer
+	;
+
+assgExpression: conditionalExpression {};
+
+primaryExpression
+	: ID
+	| CONSTANT
+	| STRING_LITERAL
+	| '(' expression ')'
+	;
+
+expression
+	: assgExpression
+	| expression ',' assgExpression
+	;
+
+conditionalExpression: OrExpression
+	| OrExpression '?' expression ':' conditionalExpression {}
+	; 
+
+OrExpression: AndExpression
+	| OrExpression OR_OP AndExpression
+	;
+
+AndExpression: EqExpression 
+	| AndExpression EQ_OP EqExpression
+	;
+
+relationExpression
+	: additiveExpression
+	| relationExpression '<' additiveExpression
+	| relationExpression '>' additiveExpression
+	| relationExpression GQ_OP additiveExpression
+	| relationExpression LQ_OP additiveExpression
+	;
+
+additiveExpression 
+	: multiplicativeExpression
+	| additiveExpression '+' multiplicativeExpression
+	| additiveExpression '-' multiplicativeExpression
+	;
+
+multiplicativeExpression
+	: multiplicativeExpression '*' primaryExpression
+	| multiplicativeExpression '/' primaryExpression
+	| multiplicativeExpression '%' primaryExpression
+	;
+
+EqExpression
+	: relationExpression
+	| EqExpression EQ_OP relationExpression
+	| EqExpression NQ_OP relationExpression
+	;
+
+typeSpecifier : type         											{}
+			  | typeCompouse 											{}
+			  ;
+
+type : INTEGER  														{}
+	 | FLOAT_NUMBER 													{}
+	 | STRING 															{}
+	 | BOOLEAN															{}
+	 | ARRAY 															{}
+	 | VOID																{}
+	 ;
+
+Ids : ID {} 
+	| Ids ',' ID {}
+	;
+
+typeCompouse  : STRUCT '@' type 										{}
+			  | MATRIZ '@' type 										{}
+			  | SET '@' type 											{}									
+			  ;
+
+blockType : FUNCTION | FOR | IF | ELSE | WHILE ;
+
+endBlock : BLOCK_END blockType
+
+argParamList : argParam							  				   		{}	
+			 | argParamList COMMA argParam 			   				   	{}
+
+argParam : type ID 														{}
+		 | typeCompouse '@' type ID										{}
+		 ;
+
+functionDeclaration : type ID '(' argParamList ')' {}
+|type ID '(' ')' {}
+|typeCompouse ID '(' argParamList ')' {}
+|typeCompouse ID '(' ')' {}
 ;
-IF
-(ID(low)
-GREATER THAN
-ID(high)
-)
-Comment: //divide the array at mid and sort independently using merge sort.
-ID(mid)
-=
-(ID(low)
-PLUS
-ID(high)
-)
-DIV
-NUMBER(2)
-;
-ID(merge_sort)
-(ID(arr)
-,
-ID(low)
-,
-ID(mid)
-)
-;
-ID(merge_sort)
-(ID(arr)
-,
-ID(mid)
-PLUS
-NUMBER(1)
-,
-ID(high)
-)
-;
-Comment: //merge or conquer sorted arrays.
-ID(merge)
-(ID(arr)
-,
-ID(low)
-,
-ID(high)
-,
-ID(mid)
-)
-;
-BLOCK_END
-IF
-BLOCK_END
-FUNCTION
-FUNCTION
-VOID
-ID(merge)
-(ARRAY
-@INTEGER
-ID(arr)
-,
-INTEGER
-ID(low)
-,
-INTEGER
-ID(high)
-,
-INTEGER
-ID(mid)
-)
-INTEGER
-WHILE
-=
-NUMBER(1)
-PLUS
-NUMBER(2)
-;
-INTEGER
-ID(j)
-;
-INTEGER
-ID(k)
-;
-INTEGER
-FUNCTION
-]
-NUMBER(50)
-]
-;
-WHILE
-=
-ID(low)
-;
-ID(k)
-=
-ID(low)
-;
-ID(j)
-=
-ID(mid)
-PLUS
-NUMBER(1)
-;
-WHILE
-(WHILE
-lower of equal than
-ID(mid)
-And Expression
-ID(j)
-lower of equal than
-ID(high)
-)
-IF
-(ID(arr)
-]
-WHILE
-]
-GREATER THAN
-ID(arr)
-]
-ID(j)
-]
-)
-FUNCTION
-]
-ID(k)
-]
-=
-ID(arr)
-]
-WHILE
-]
-;
-ID(k)
-PLUS
-PLUS
-;
-WHILE
-PLUS
-PLUS
-;
-BLOCK_END
-IF
-ELSE
-FUNCTION
-]
-ID(k)
-]
-=
-ID(arr)
-]
-ID(j)
-]
-;
-ID(k)
-PLUS
-PLUS
-;
-ID(j)
-PLUS
-PLUS
-;
-BLOCK_END
-ELSE
-BLOCK_END
-WHILE
-WHILE
-(WHILE
-lower of equal than
-ID(mid)
-)
-FUNCTION
-]
-ID(k)
-]
-=
-ID(arr)
-]
-WHILE
-]
-;
-ID(k)
-PLUS
-PLUS
-;
-WHILE
-PLUS
-PLUS
-;
-BLOCK_END
-WHILE
-WHILE
-(ID(j)
-lower of equal than
-ID(high)
-)
-FUNCTION
-]
-ID(k)
-]
-=
-ID(arr)
-]
-ID(j)
-]
-;
-ID(k)
-PLUS
-PLUS
-;
-ID(j)
-PLUS
-PLUS
-;
-BLOCK_END
-WHILE
-FOR
-(WHILE
-=
-ID(low)
-;
-WHILE
-GREATER THAN
-ID(k)
-;
-WHILE
-PLUS
-PLUS
-)
-ID(arr)
-]
-WHILE
-]
-=
-FUNCTION
-]
-WHILE
-]
-;
-BLOCK_END
-FOR
-BLOCK_END
-FUNCTION
-FUNCTION
-INTEGER
-ID(main)
-()
-INTEGER
-ID(num)
-;
-ID(print)
-(STRING_LITERAL
-)
-;
-ID(num)
-=
-ID(read)
-()
-;
-ID(print)
-(STRING_LITERAL
-)
-;
-ID(print)
-(ID(num)
-)
-;
-ID(print)
-(STRING_LITERAL
-)
-;
-FOR
-(INTEGER
-WHILE
-=
-NUMBER(0)
-;
-WHILE
-GREATER THAN
-ID(num)
-;
-WHILE
-PLUS
-PLUS
-)
-;
-ID(myarray)
-]
-WHILE
-]
-=
-ID(read)
-()
-;
-BLOCK_END
-FOR
-ID(merge_sort)
-(ID(myarray)
-,
-NUMBER(0)
-,
-ID(num)
-MINUS
-NUMBER(1)
-)
-;
-ID(print)
-(STRING_LITERAL
-)
-;
-FOR
-(INTEGER
-WHILE
-=
-NUMBER(0)
-;
-WHILE
-GREATER THAN
-ID(num)
-;
-WHILE
-PLUS
-PLUS
-)
-ID(print)
-(ID(myarray)
-]
-WHILE
-]
-)
-;
-ID(print)
-(STRING_LITERAL
-)
-;
-BLOCK_END
-FOR
-BLOCK_END
-FUNCTION
+
+functionDefinition 	: FUNCTION functionDeclaration compoundStatement BLOCK_END FUNCTION {}					;

@@ -50,66 +50,72 @@ extern int yydebug;
   enum yytokentype
   {
     ID = 258,
-    NUMBER = 259,
-    WHILE = 260,
-    BLOCK_START = 261,
-    BLOCK_END = 262,
-    DO = 263,
-    IF = 264,
-    THEN = 265,
-    ELSE = 266,
-    SEMI = 267,
-    ASSIGN = 268,
-    TYPE = 269,
-    COMMA = 270,
-    TYPECOMPOUSE = 271,
-    CONSTANT = 272,
-    STRING_LITERAL = 273,
-    OR_OP = 274,
-    EQ_OP = 275,
-    LE_OP = 276,
-    DEFAULT = 277,
-    CASE = 278,
-    FOR = 279,
-    CONTINUE = 280,
-    BREAK = 281,
-    RETURN = 282,
-    GE_OP = 283,
-    NE_OP = 284,
-    SWITCH = 285,
-    TYPE_COMPOUSE = 286
+    WHILE = 259,
+    BLOCK_END = 260,
+    DO = 261,
+    IF = 262,
+    ELSE = 263,
+    SEMI = 264,
+    COMMA = 265,
+    CONSTANT = 266,
+    OR_OP = 267,
+    LQ_OP = 268,
+    GQ_OP = 269,
+    EQ_OP = 270,
+    NQ_OP = 271,
+    STRING_LITERAL = 272,
+    SWITCH = 273,
+    DEFAULT = 274,
+    CASE = 275,
+    FOR = 276,
+    CONTINUE = 277,
+    BREAK = 278,
+    RETURN = 279,
+    FUNCTION = 280,
+    INTEGER = 281,
+    FLOAT_NUMBER = 282,
+    STRING = 283,
+    BOOLEAN = 284,
+    SET = 285,
+    ARRAY = 286,
+    MATRIZ = 287,
+    VOID = 288,
+    STRUCT = 289
   };
 #endif
 /* Tokens.  */
 #define ID 258
-#define NUMBER 259
-#define WHILE 260
-#define BLOCK_START 261
-#define BLOCK_END 262
-#define DO 263
-#define IF 264
-#define THEN 265
-#define ELSE 266
-#define SEMI 267
-#define ASSIGN 268
-#define TYPE 269
-#define COMMA 270
-#define TYPECOMPOUSE 271
-#define CONSTANT 272
-#define STRING_LITERAL 273
-#define OR_OP 274
-#define EQ_OP 275
-#define LE_OP 276
-#define DEFAULT 277
-#define CASE 278
-#define FOR 279
-#define CONTINUE 280
-#define BREAK 281
-#define RETURN 282
-#define GE_OP 283
-#define NE_OP 284
-#define SWITCH 285
-#define TYPE_COMPOUSE 286
+#define WHILE 259
+#define BLOCK_END 260
+#define DO 261
+#define IF 262
+#define ELSE 263
+#define SEMI 264
+#define COMMA 265
+#define CONSTANT 266
+#define OR_OP 267
+#define LQ_OP 268
+#define GQ_OP 269
+#define EQ_OP 270
+#define NQ_OP 271
+#define STRING_LITERAL 272
+#define SWITCH 273
+#define DEFAULT 274
+#define CASE 275
+#define FOR 276
+#define CONTINUE 277
+#define BREAK 278
+#define RETURN 279
+#define FUNCTION 280
+#define INTEGER 281
+#define FLOAT_NUMBER 282
+#define STRING 283
+#define BOOLEAN 284
+#define SET 285
+#define ARRAY 286
+#define MATRIZ 287
+#define VOID 288
+#define STRUCT 289
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -122,7 +128,7 @@ union YYSTYPE
 	char * sValue;  /* string value */
 	
 
-#line 126 "y.tab.h"
+#line 132 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

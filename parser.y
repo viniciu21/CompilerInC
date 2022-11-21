@@ -15,186 +15,82 @@ extern char * yytext;
 	};
 
 %token <sValue> ID
-%token <iValue> NUMBER
-%token WHILE BLOCK_START BLOCK_END DO IF 
-%token THEN ELSE SEMI ASSIGN TYPE 
-%token COMMA TYPECOMPOUSE CONSTANT 
-%token STRING_LITERAL OR_OP EQ_OP 
-%token LE_OP DEFAULT CASE FOR CONTINUE BREAK RETURN GE_OP
-%token NE_OP SWITCH TYPE_COMPOUSE
-%token LEFT_PARENTHESIS RIGHT_PARENTHESIS AT
+%token WHILE  BLOCK_END DO IF 
+%token ELSE SEMI  
+%token COMMA CONSTANT 
+%token OR_OP LQ_OP GQ_OP EQ_OP NQ_OP
+%token STRING_LITERAL 
+%token SWITCH DEFAULT CASE FOR CONTINUE BREAK RETURN FUNCTION
+%token INTEGER FLOAT_NUMBER STRING BOOLEAN SET ARRAY MATRIZ VOID STRUCT
 
 %start prog
 
-%type <sValue> stm
-
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
 
-prog : alts ;
+type : INTEGER  														{}
+	 | FLOAT_NUMBER 													{}
+	 | STRING 															{}
+	 | BOOLEAN															{}
+	 | ARRAY 															{}
+	 | VOID																{}
+	 ;
 
-alts : alt | alts alt;
-
-alt : functionDefinitionList | declarationList;
-
-functionDefinitionList	: functionDefinitionList 						{}
-						| functionDefinition functionDefinitionList 	{}
-
-functionDefinition 	: functionDeclaration compoundStatement	endBlock	{}
-					;
-
-compoundStatement 	:  	statementList  									{}
-					|  	declarationList 								{}
-					|  	declarationList statementList 					{}
-					;
-
-statementList   : statement | statementList statement ;
-
-declarationList : declaration 			   	   {}
-				| declarationList declaration  {} 
-				;
-
-declaration	: declarationSpecifiers initDeclaratorList SEMI;
-
-declarationSpecifiers: typeSpecifier;
-
-initDeclaratorList
-	: initDeclarator
-	| initDeclaratorList ',' initDeclarator
-	;
-
-initDeclarator : declarator
-			   | declarator '=' initializer
-
-declarator	: IDS ;
-
-constantExpression
-	: conditionalExpression
-	;
-
-initializer : assgExpression
-	| '{' initializerList '}'
-	| '{' initializerList ',' '}'
-	;
-
-initializerList
-	: initializer
-	| initializerList ',' initializer
-	;
-
-assgExpression: conditionalExpression {};
-
-primaryExpression
-	: ID
-	| CONSTANT
-	| STRING_LITERAL
-	| '(' expression ')'
-	;
-
-expression
-	: assgExpression
-	| expression ',' assgExpression
-	;
-
-conditionalExpression: OrExpression
-	| OrExpression '?' expression ':' conditionalExpression {}
-	; 
-
-OrExpression: AndExpression
-	| OrExpression '||' AndExpression
-	;
-
-AndExpression: EqExpression 
-	| AndExpression '==' EqExpression
-	;
-
-relationExpression
-	: additiveExpression
-	| relationExpression '<' additiveExpression
-	| relationExpression '>' additiveExpression
-	| relationExpression '=>' additiveExpression
-	| relationExpression '=<' additiveExpression
-	;
-
-additiveExpression 
-	: multiplicativeExpression
-	| additiveExpression '+' multiplicativeExpression
-	| additiveExpression '-' multiplicativeExpression
-	;
-
-multiplicativeExpression
-	: multiplicativeExpression '*' primaryExpression
-	| multiplicativeExpression '/' primaryExpression
-	| multiplicativeExpression '%' primaryExpression
-	;
-
-EqExpression
-	: relationExpression
-	| EqExpression '==' relationExpression
-	| EqExpression '!=' relationExpression
-	;
-
-typeSpecifier : TYPE         											{}
-			  | typeCompouse 											{}
+typeCompouse  : STRUCT '@' type 										{}
+			  | MATRIZ '@' type 										{}
+			  | SET '@' type 											{}									
 			  ;
-
-IDS : ID {} 
-	| IDS ',' ID {}
-	;
-
-statement
-	: labeledStatement
-	| compoundStatement
-	| expressionStatement 
-	| jumpStatement;
-
-labeledStatement 
-	: CASE constantExpression ':' statement
-	| DEFAULT ':' statement
-	;
-
-selectionStatement
-	: IF '(' expression ')' statement
-	| IF '(' expression ')' statement ELSE statement
-	| SWITCH '(' expression ')' statement
-	;
-
-iterationStatement
-	: WHILE '(' expression ')' statement
-	| DO statement WHILE '(' expression ')' SEMI
-	| FOR '(' expressionStatement expressionStatement ')' statement
-	| FOR '(' expressionStatement expressionStatement expression ')' statement
-	;
-
-expressionStatement
-	: ';'
-	| expression ';'
-	;
-
-jumpStatement
-	: CONTINUE ';'
-	| BREAK ';'
-	| RETURN ';'
-	| RETURN expression ';'
-	;
-
-typeCompouse  : TYPECOMPOUSE AT TYPE {}
-
-functionDeclaration :  TYPE ID '(' argParamList ')' 					{}
-					|  TYPE ID '(' ')'  								{}
-					|  TYPECOMPOUSE ID '(' argParamList ')' 			{}
-					|  TYPECOMPOUSE ID '(' ')'  						{}
-					;
-
-blockType : FUNCTION | FOR | IF | ELSE | WHILE ;
-
-endBlock : BLOCK_END blockType
 
 argParamList : argParam							  				   		{}	
 			 | argParamList COMMA argParam 			   				   	{}
 
-argParam : TYPE ID 														{}
-		 | TYPE_COMPOUSE AT TYPE ID										{}
+argParam : type ID 														{}
+		 | typeCompouse '@' type ID										{}
 		 ;
+
+functionDeclaration : 	type ID '(' argParamList ')' {}
+					|	type ID '(' ')' {}
+					|	typeCompouse ID '(' argParamList ')' {}
+					|	typeCompouse ID '(' ')' {}
+					;		
+
+statement :  compoundStatement
+		  |	selectionStatement;
+		  | jumpStatement;
+
+jumpStatement
+	: CONTINUE 
+	| BREAK 
+	| RETURN 
+	| RETURN 'd' 
+	;
+
+selectionStatement
+	: IF '(' 'a' ')' statement
+	| IF '(' 't' ')' statement ELSE statement
+	;
+
+statementList   : statement ';'
+				| statementList statement ';' ;
+
+compoundStatement 	:  	statementList  									{}
+					|  	declarationList  								{}
+					|  	declarationList statementList 					{}
+					;
+
+functionDefinition 	: FUNCTION functionDeclaration compoundStatement BLOCK_END FUNCTION {}	//VOLTAR AQUI 2
+					;
+
+functionDefinitionList	: functionDefinition 							{}
+						| functionDefinitionList functionDefinition  	{}
+						;
+
+declarationList: ';';
+
+alt : functionDefinitionList {}
+	| declarationList 		{} 
+	; //VOLTAR AQUI 
+alts : alt | alts alt;
+prog : alts ;
 
 %% /* Fim da segunda seção */
 
