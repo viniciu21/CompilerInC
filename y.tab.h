@@ -54,33 +54,33 @@ extern int yydebug;
     BLOCK_END = 260,
     DO = 261,
     IF = 262,
-    ELSE = 263,
-    SEMI = 264,
-    COMMA = 265,
-    CONSTANT = 266,
-    OR_OP = 267,
-    LQ_OP = 268,
-    GQ_OP = 269,
-    EQ_OP = 270,
-    NQ_OP = 271,
-    STRING_LITERAL = 272,
-    SWITCH = 273,
-    DEFAULT = 274,
-    CASE = 275,
-    FOR = 276,
-    CONTINUE = 277,
-    BREAK = 278,
-    RETURN = 279,
-    FUNCTION = 280,
-    INTEGER = 281,
-    FLOAT_NUMBER = 282,
-    STRING = 283,
-    BOOLEAN = 284,
-    SET = 285,
-    ARRAY = 286,
-    MATRIZ = 287,
-    VOID = 288,
-    STRUCT = 289
+    SEMI = 263,
+    ELSE = 264,
+    CONSTANT = 265,
+    OR_OP = 266,
+    LQ_OP = 267,
+    GQ_OP = 268,
+    EQ_OP = 269,
+    NQ_OP = 270,
+    STRING_LITERAL = 271,
+    SWITCH = 272,
+    DEFAULT = 273,
+    CASE = 274,
+    FOR = 275,
+    CONTINUE = 276,
+    BREAK = 277,
+    RETURN = 278,
+    FUNCTION = 279,
+    INTEGER = 280,
+    FLOAT_NUMBER = 281,
+    STRING = 282,
+    BOOLEAN = 283,
+    SET = 284,
+    ARRAY = 285,
+    MATRIZ = 286,
+    VOID = 287,
+    STRUCT = 288,
+    LOWER_THAN_ELSE = 289
   };
 #endif
 /* Tokens.  */
@@ -89,33 +89,33 @@ extern int yydebug;
 #define BLOCK_END 260
 #define DO 261
 #define IF 262
-#define ELSE 263
-#define SEMI 264
-#define COMMA 265
-#define CONSTANT 266
-#define OR_OP 267
-#define LQ_OP 268
-#define GQ_OP 269
-#define EQ_OP 270
-#define NQ_OP 271
-#define STRING_LITERAL 272
-#define SWITCH 273
-#define DEFAULT 274
-#define CASE 275
-#define FOR 276
-#define CONTINUE 277
-#define BREAK 278
-#define RETURN 279
-#define FUNCTION 280
-#define INTEGER 281
-#define FLOAT_NUMBER 282
-#define STRING 283
-#define BOOLEAN 284
-#define SET 285
-#define ARRAY 286
-#define MATRIZ 287
-#define VOID 288
-#define STRUCT 289
+#define SEMI 263
+#define ELSE 264
+#define CONSTANT 265
+#define OR_OP 266
+#define LQ_OP 267
+#define GQ_OP 268
+#define EQ_OP 269
+#define NQ_OP 270
+#define STRING_LITERAL 271
+#define SWITCH 272
+#define DEFAULT 273
+#define CASE 274
+#define FOR 275
+#define CONTINUE 276
+#define BREAK 277
+#define RETURN 278
+#define FUNCTION 279
+#define INTEGER 280
+#define FLOAT_NUMBER 281
+#define STRING 282
+#define BOOLEAN 283
+#define SET 284
+#define ARRAY 285
+#define MATRIZ 286
+#define VOID 287
+#define STRUCT 288
+#define LOWER_THAN_ELSE 289
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

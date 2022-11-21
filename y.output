@@ -1,28 +1,40 @@
 Terminals unused in grammar
 
-    WHILE
-    DO
-    SEMI
-    CONSTANT
-    OR_OP
-    LQ_OP
-    GQ_OP
-    EQ_OP
-    NQ_OP
-    STRING_LITERAL
     SWITCH
     DEFAULT
     CASE
-    FOR
+    CONTINUE
+    BREAK
 
 
-State 4 conflicts: 1 shift/reduce
+State 13 conflicts: 1 shift/reduce
+State 15 conflicts: 9 shift/reduce
+State 21 conflicts: 1 shift/reduce
+State 27 conflicts: 1 shift/reduce
 State 36 conflicts: 1 shift/reduce
-State 38 conflicts: 1 shift/reduce
-State 50 conflicts: 1 shift/reduce, 1 reduce/reduce
-State 60 conflicts: 5 reduce/reduce
-State 71 conflicts: 1 shift/reduce
-State 75 conflicts: 1 shift/reduce
+State 39 conflicts: 3 reduce/reduce
+State 51 conflicts: 1 shift/reduce
+State 54 conflicts: 2 shift/reduce, 1 reduce/reduce
+State 56 conflicts: 2 shift/reduce, 1 reduce/reduce
+State 60 conflicts: 1 shift/reduce
+State 72 conflicts: 1 shift/reduce
+State 93 conflicts: 2 shift/reduce, 2 reduce/reduce
+State 112 conflicts: 1 shift/reduce
+State 115 conflicts: 1 shift/reduce
+State 132 conflicts: 29 reduce/reduce
+State 143 conflicts: 1 shift/reduce
+State 145 conflicts: 1 shift/reduce
+State 146 conflicts: 1 shift/reduce
+State 149 conflicts: 29 reduce/reduce
+State 151 conflicts: 1 shift/reduce
+State 155 conflicts: 1 shift/reduce
+State 157 conflicts: 1 shift/reduce
+State 158 conflicts: 1 shift/reduce
+State 166 conflicts: 1 shift/reduce
+State 167 conflicts: 1 shift/reduce
+State 168 conflicts: 1 shift/reduce
+State 170 conflicts: 1 shift/reduce
+State 171 conflicts: 1 shift/reduce
 
 
 Grammar
@@ -41,7 +53,7 @@ Grammar
     9             | SET '@' type
 
    10 argParamList: argParam
-   11             | argParamList COMMA argParam
+   11             | argParamList ',' argParam
 
    12 argParam: type ID
    13         | typeCompouse '@' type ID
@@ -51,137 +63,257 @@ Grammar
    16                    | typeCompouse ID '(' argParamList ')'
    17                    | typeCompouse ID '(' ')'
 
-   18 statement: compoundStatement
-   19          | selectionStatement
-   20          | jumpStatement
+   18 statement: selectionStatement
+   19          | jumpStatement
+   20          | expressionStatement
+   21          | iterationStatement
+   22          | compoundStatement
 
-   21 jumpStatement: CONTINUE
-   22              | BREAK
-   23              | RETURN
-   24              | RETURN 'd'
+   23 jumpStatement: RETURN
+   24              | RETURN expression
 
-   25 selectionStatement: IF '(' 'a' ')' statement
-   26                   | IF '(' 't' ')' statement ELSE statement
+   25 conditionalExpression: OrExpression
+   26                      | OrExpression '?' expression ':' conditionalExpression
 
-   27 statementList: statement ';'
-   28              | statementList statement ';'
+   27 OrExpression: AndExpression
+   28             | OrExpression OR_OP AndExpression
 
-   29 compoundStatement: statementList
-   30                  | declarationList
-   31                  | declarationList statementList
+   29 expressionStatement: ';'
+   30                    | expression ';'
 
-   32 functionDefinition: FUNCTION functionDeclaration compoundStatement BLOCK_END FUNCTION
+   31 iterationStatement: WHILE '(' expression ')' statement
+   32                   | DO statement WHILE '(' expression ')' SEMI
+   33                   | FOR '(' expressionStatement expressionStatement ')' statement
+   34                   | FOR '(' expressionStatement expressionStatement expression ')' statement
 
-   33 functionDefinitionList: functionDefinition
-   34                       | functionDefinitionList functionDefinition
+   35 AndExpression: EqExpression
+   36              | AndExpression EQ_OP EqExpression
 
-   35 declarationList: ';'
+   37 relationExpression: additiveExpression
+   38                   | relationExpression '<' additiveExpression
+   39                   | relationExpression '>' additiveExpression
+   40                   | relationExpression GQ_OP additiveExpression
+   41                   | relationExpression LQ_OP additiveExpression
 
-   36 alt: functionDefinitionList
-   37    | declarationList
+   42 additiveExpression: multiplicativeExpression
+   43                   | additiveExpression '+' multiplicativeExpression
+   44                   | additiveExpression '-' multiplicativeExpression
 
-   38 alts: alt
-   39     | alts alt
+   45 primaryExpression: ID
+   46                  | CONSTANT
+   47                  | STRING_LITERAL
+   48                  | '(' expression ')'
 
-   40 prog: alts
+   49 multiplicativeExpression: %empty
+   50                         | multiplicativeExpression '*' primaryExpression
+   51                         | multiplicativeExpression '/' primaryExpression
+   52                         | multiplicativeExpression '%' primaryExpression
+
+   53 EqExpression: relationExpression
+   54             | EqExpression EQ_OP relationExpression
+   55             | EqExpression NQ_OP relationExpression
+
+   56 expression: conditionalExpression
+   57           | expression ',' conditionalExpression
+
+   58 selectionStatement: IF '(' expression ')' statement
+   59                   | IF '(' expression ')' statement ELSE statement
+
+   60 statementList: statement ';'
+   61              | statementList statement ';'
+
+   62 compoundStatement: statementList
+   63                  | declarationList
+   64                  | declarationList statementList
+
+   65 functionDefinitionList: FUNCTION functionDeclaration compoundStatement BLOCK_END FUNCTION
+   66                       | functionDefinitionList FUNCTION functionDeclaration compoundStatement BLOCK_END FUNCTION
+
+   67 typeSpecifier: type
+   68              | typeCompouse
+
+   69 Ids: ID
+   70    | Ids ',' ID
+
+   71 initDeclarator: Ids
+   72               | Ids '=' initializer
+
+   73 initializer: conditionalExpression
+   74            | '{' initializerList '}'
+   75            | '{' initializerList ',' '}'
+
+   76 initializerList: initializer
+   77                | initializerList ',' initializer
+
+   78 initDeclaratorList: initDeclarator
+   79                   | initDeclaratorList ',' initDeclarator
+
+   80 declarationList: typeSpecifier initDeclaratorList ';'
+   81                | declarationList typeSpecifier initDeclaratorList ';'
+
+   82 alt: functionDefinitionList
+   83    | declarationList
+
+   84 alts: alt
+   85     | alts alt
+
+   86 prog: alts
 
 
 Terminals, with rules where they appear
 
     $end (0) 0
-    '(' (40) 14 15 16 17 25 26
-    ')' (41) 14 15 16 17 25 26
-    ';' (59) 27 28 35
+    '%' (37) 52
+    '(' (40) 14 15 16 17 31 32 33 34 48 58 59
+    ')' (41) 14 15 16 17 31 32 33 34 48 58 59
+    '*' (42) 50
+    '+' (43) 43
+    ',' (44) 11 57 70 75 77 79
+    '-' (45) 44
+    '/' (47) 51
+    ':' (58) 26
+    ';' (59) 29 30 60 61 80 81
+    '<' (60) 38
+    '=' (61) 72
+    '>' (62) 39
+    '?' (63) 26
     '@' (64) 7 8 9 13
-    'a' (97) 25
-    'd' (100) 24
-    't' (116) 26
+    '{' (123) 74 75
+    '}' (125) 74 75
     error (256)
-    ID <sValue> (258) 12 13 14 15 16 17
-    WHILE (259)
-    BLOCK_END (260) 32
-    DO (261)
-    IF (262) 25 26
-    ELSE (263) 26
-    SEMI (264)
-    COMMA (265) 11
-    CONSTANT (266)
-    OR_OP (267)
-    LQ_OP (268)
-    GQ_OP (269)
-    EQ_OP (270)
-    NQ_OP (271)
-    STRING_LITERAL (272)
-    SWITCH (273)
-    DEFAULT (274)
-    CASE (275)
-    FOR (276)
-    CONTINUE (277) 21
-    BREAK (278) 22
-    RETURN (279) 23 24
-    FUNCTION (280) 32
-    INTEGER (281) 1
-    FLOAT_NUMBER (282) 2
-    STRING (283) 3
-    BOOLEAN (284) 4
-    SET (285) 9
-    ARRAY (286) 5
-    MATRIZ (287) 8
-    VOID (288) 6
-    STRUCT (289) 7
+    ID <sValue> (258) 12 13 14 15 16 17 45 69 70
+    WHILE (259) 31 32
+    BLOCK_END (260) 65 66
+    DO (261) 32
+    IF (262) 58 59
+    SEMI (263) 32
+    ELSE (264) 59
+    CONSTANT (265) 46
+    OR_OP (266) 28
+    LQ_OP (267) 41
+    GQ_OP (268) 40
+    EQ_OP (269) 36 54
+    NQ_OP (270) 55
+    STRING_LITERAL (271) 47
+    SWITCH (272)
+    DEFAULT (273)
+    CASE (274)
+    FOR (275) 33 34
+    CONTINUE (276)
+    BREAK (277)
+    RETURN (278) 23 24
+    FUNCTION (279) 65 66
+    INTEGER (280) 1
+    FLOAT_NUMBER (281) 2
+    STRING (282) 3
+    BOOLEAN (283) 4
+    SET (284) 9
+    ARRAY (285) 5
+    MATRIZ (286) 8
+    VOID (287) 6
+    STRUCT (288) 7
+    LOWER_THAN_ELSE (289)
 
 
 Nonterminals, with rules where they appear
 
-    $accept (42)
+    $accept (52)
         on left: 0
-    type (43)
+    type (53)
         on left: 1 2 3 4 5 6
-        on right: 7 8 9 12 13 14 15
-    typeCompouse (44)
+        on right: 7 8 9 12 13 14 15 67
+    typeCompouse (54)
         on left: 7 8 9
-        on right: 13 16 17
-    argParamList (45)
+        on right: 13 16 17 68
+    argParamList (55)
         on left: 10 11
         on right: 11 14 16
-    argParam (46)
+    argParam (56)
         on left: 12 13
         on right: 10 11
-    functionDeclaration (47)
+    functionDeclaration (57)
         on left: 14 15 16 17
-        on right: 32
-    statement (48)
-        on left: 18 19 20
-        on right: 25 26 27 28
-    jumpStatement (49)
-        on left: 21 22 23 24
-        on right: 20
-    selectionStatement (50)
-        on left: 25 26
+        on right: 65 66
+    statement (58)
+        on left: 18 19 20 21 22
+        on right: 31 32 33 34 58 59 60 61
+    jumpStatement (59)
+        on left: 23 24
         on right: 19
-    statementList (51)
+    conditionalExpression (60)
+        on left: 25 26
+        on right: 26 56 57 73
+    OrExpression (61)
         on left: 27 28
-        on right: 28 29 31
-    compoundStatement (52)
-        on left: 29 30 31
-        on right: 18 32
-    functionDefinition (53)
-        on left: 32
-        on right: 33 34
-    functionDefinitionList (54)
-        on left: 33 34
-        on right: 34 36
-    declarationList (55)
-        on left: 35
-        on right: 30 31 37
-    alt (56)
-        on left: 36 37
-        on right: 38 39
-    alts (57)
-        on left: 38 39
-        on right: 39 40
-    prog (58)
-        on left: 40
+        on right: 25 26 28
+    expressionStatement (62)
+        on left: 29 30
+        on right: 20 33 34
+    iterationStatement (63)
+        on left: 31 32 33 34
+        on right: 21
+    AndExpression (64)
+        on left: 35 36
+        on right: 27 28 36
+    relationExpression (65)
+        on left: 37 38 39 40 41
+        on right: 38 39 40 41 53 54 55
+    additiveExpression (66)
+        on left: 42 43 44
+        on right: 37 38 39 40 41 43 44
+    primaryExpression (67)
+        on left: 45 46 47 48
+        on right: 50 51 52
+    multiplicativeExpression (68)
+        on left: 49 50 51 52
+        on right: 42 43 44 50 51 52
+    EqExpression (69)
+        on left: 53 54 55
+        on right: 35 36 54 55
+    expression (70)
+        on left: 56 57
+        on right: 24 26 30 31 32 34 48 57 58 59
+    selectionStatement (71)
+        on left: 58 59
+        on right: 18
+    statementList (72)
+        on left: 60 61
+        on right: 61 62 64
+    compoundStatement (73)
+        on left: 62 63 64
+        on right: 22 65 66
+    functionDefinitionList (74)
+        on left: 65 66
+        on right: 66 82
+    typeSpecifier (75)
+        on left: 67 68
+        on right: 80 81
+    Ids (76)
+        on left: 69 70
+        on right: 70 71 72
+    initDeclarator (77)
+        on left: 71 72
+        on right: 78 79
+    initializer (78)
+        on left: 73 74 75
+        on right: 72 76 77
+    initializerList (79)
+        on left: 76 77
+        on right: 74 75 77
+    initDeclaratorList (80)
+        on left: 78 79
+        on right: 79 80 81
+    declarationList (81)
+        on left: 80 81
+        on right: 63 64 81 83
+    alt (82)
+        on left: 82 83
+        on right: 84 85
+    alts (83)
+        on left: 84 85
+        on right: 85 86
+    prog (84)
+        on left: 86
         on right: 0
 
 
@@ -189,766 +321,2302 @@ State 0
 
     0 $accept: . prog $end
 
-    FUNCTION  shift, and go to state 1
-    ';'       shift, and go to state 2
+    FUNCTION      shift, and go to state 1
+    INTEGER       shift, and go to state 2
+    FLOAT_NUMBER  shift, and go to state 3
+    STRING        shift, and go to state 4
+    BOOLEAN       shift, and go to state 5
+    SET           shift, and go to state 6
+    ARRAY         shift, and go to state 7
+    MATRIZ        shift, and go to state 8
+    VOID          shift, and go to state 9
+    STRUCT        shift, and go to state 10
 
-    functionDefinition      go to state 3
-    functionDefinitionList  go to state 4
-    declarationList         go to state 5
-    alt                     go to state 6
-    alts                    go to state 7
-    prog                    go to state 8
+    type                    go to state 11
+    typeCompouse            go to state 12
+    functionDefinitionList  go to state 13
+    typeSpecifier           go to state 14
+    declarationList         go to state 15
+    alt                     go to state 16
+    alts                    go to state 17
+    prog                    go to state 18
 
 
 State 1
 
-   32 functionDefinition: FUNCTION . functionDeclaration compoundStatement BLOCK_END FUNCTION
+   65 functionDefinitionList: FUNCTION . functionDeclaration compoundStatement BLOCK_END FUNCTION
 
-    INTEGER       shift, and go to state 9
-    FLOAT_NUMBER  shift, and go to state 10
-    STRING        shift, and go to state 11
-    BOOLEAN       shift, and go to state 12
-    SET           shift, and go to state 13
-    ARRAY         shift, and go to state 14
-    MATRIZ        shift, and go to state 15
-    VOID          shift, and go to state 16
-    STRUCT        shift, and go to state 17
+    INTEGER       shift, and go to state 2
+    FLOAT_NUMBER  shift, and go to state 3
+    STRING        shift, and go to state 4
+    BOOLEAN       shift, and go to state 5
+    SET           shift, and go to state 6
+    ARRAY         shift, and go to state 7
+    MATRIZ        shift, and go to state 8
+    VOID          shift, and go to state 9
+    STRUCT        shift, and go to state 10
 
-    type                 go to state 18
-    typeCompouse         go to state 19
-    functionDeclaration  go to state 20
+    type                 go to state 19
+    typeCompouse         go to state 20
+    functionDeclaration  go to state 21
 
 
 State 2
-
-   35 declarationList: ';' .
-
-    $default  reduce using rule 35 (declarationList)
-
-
-State 3
-
-   33 functionDefinitionList: functionDefinition .
-
-    $default  reduce using rule 33 (functionDefinitionList)
-
-
-State 4
-
-   34 functionDefinitionList: functionDefinitionList . functionDefinition
-   36 alt: functionDefinitionList .
-
-    FUNCTION  shift, and go to state 1
-
-    FUNCTION  [reduce using rule 36 (alt)]
-    $default  reduce using rule 36 (alt)
-
-    functionDefinition  go to state 21
-
-
-State 5
-
-   37 alt: declarationList .
-
-    $default  reduce using rule 37 (alt)
-
-
-State 6
-
-   38 alts: alt .
-
-    $default  reduce using rule 38 (alts)
-
-
-State 7
-
-   39 alts: alts . alt
-   40 prog: alts .
-
-    FUNCTION  shift, and go to state 1
-    ';'       shift, and go to state 2
-
-    $default  reduce using rule 40 (prog)
-
-    functionDefinition      go to state 3
-    functionDefinitionList  go to state 4
-    declarationList         go to state 5
-    alt                     go to state 22
-
-
-State 8
-
-    0 $accept: prog . $end
-
-    $end  shift, and go to state 23
-
-
-State 9
 
     1 type: INTEGER .
 
     $default  reduce using rule 1 (type)
 
 
-State 10
+State 3
 
     2 type: FLOAT_NUMBER .
 
     $default  reduce using rule 2 (type)
 
 
-State 11
+State 4
 
     3 type: STRING .
 
     $default  reduce using rule 3 (type)
 
 
-State 12
+State 5
 
     4 type: BOOLEAN .
 
     $default  reduce using rule 4 (type)
 
 
-State 13
+State 6
 
     9 typeCompouse: SET . '@' type
 
-    '@'  shift, and go to state 24
+    '@'  shift, and go to state 22
 
 
-State 14
+State 7
 
     5 type: ARRAY .
 
     $default  reduce using rule 5 (type)
 
 
-State 15
+State 8
 
     8 typeCompouse: MATRIZ . '@' type
 
-    '@'  shift, and go to state 25
+    '@'  shift, and go to state 23
 
 
-State 16
+State 9
 
     6 type: VOID .
 
     $default  reduce using rule 6 (type)
 
 
-State 17
+State 10
 
     7 typeCompouse: STRUCT . '@' type
 
-    '@'  shift, and go to state 26
+    '@'  shift, and go to state 24
+
+
+State 11
+
+   67 typeSpecifier: type .
+
+    $default  reduce using rule 67 (typeSpecifier)
+
+
+State 12
+
+   68 typeSpecifier: typeCompouse .
+
+    $default  reduce using rule 68 (typeSpecifier)
+
+
+State 13
+
+   66 functionDefinitionList: functionDefinitionList . FUNCTION functionDeclaration compoundStatement BLOCK_END FUNCTION
+   82 alt: functionDefinitionList .
+
+    FUNCTION  shift, and go to state 25
+
+    FUNCTION  [reduce using rule 82 (alt)]
+    $default  reduce using rule 82 (alt)
+
+
+State 14
+
+   80 declarationList: typeSpecifier . initDeclaratorList ';'
+
+    ID  shift, and go to state 26
+
+    Ids                 go to state 27
+    initDeclarator      go to state 28
+    initDeclaratorList  go to state 29
+
+
+State 15
+
+   81 declarationList: declarationList . typeSpecifier initDeclaratorList ';'
+   83 alt: declarationList .
+
+    INTEGER       shift, and go to state 2
+    FLOAT_NUMBER  shift, and go to state 3
+    STRING        shift, and go to state 4
+    BOOLEAN       shift, and go to state 5
+    SET           shift, and go to state 6
+    ARRAY         shift, and go to state 7
+    MATRIZ        shift, and go to state 8
+    VOID          shift, and go to state 9
+    STRUCT        shift, and go to state 10
+
+    INTEGER       [reduce using rule 83 (alt)]
+    FLOAT_NUMBER  [reduce using rule 83 (alt)]
+    STRING        [reduce using rule 83 (alt)]
+    BOOLEAN       [reduce using rule 83 (alt)]
+    SET           [reduce using rule 83 (alt)]
+    ARRAY         [reduce using rule 83 (alt)]
+    MATRIZ        [reduce using rule 83 (alt)]
+    VOID          [reduce using rule 83 (alt)]
+    STRUCT        [reduce using rule 83 (alt)]
+    $default      reduce using rule 83 (alt)
+
+    type           go to state 11
+    typeCompouse   go to state 12
+    typeSpecifier  go to state 30
+
+
+State 16
+
+   84 alts: alt .
+
+    $default  reduce using rule 84 (alts)
+
+
+State 17
+
+   85 alts: alts . alt
+   86 prog: alts .
+
+    FUNCTION      shift, and go to state 1
+    INTEGER       shift, and go to state 2
+    FLOAT_NUMBER  shift, and go to state 3
+    STRING        shift, and go to state 4
+    BOOLEAN       shift, and go to state 5
+    SET           shift, and go to state 6
+    ARRAY         shift, and go to state 7
+    MATRIZ        shift, and go to state 8
+    VOID          shift, and go to state 9
+    STRUCT        shift, and go to state 10
+
+    $default  reduce using rule 86 (prog)
+
+    type                    go to state 11
+    typeCompouse            go to state 12
+    functionDefinitionList  go to state 13
+    typeSpecifier           go to state 14
+    declarationList         go to state 15
+    alt                     go to state 31
 
 
 State 18
 
-   14 functionDeclaration: type . ID '(' argParamList ')'
-   15                    | type . ID '(' ')'
+    0 $accept: prog . $end
 
-    ID  shift, and go to state 27
+    $end  shift, and go to state 32
 
 
 State 19
 
-   16 functionDeclaration: typeCompouse . ID '(' argParamList ')'
-   17                    | typeCompouse . ID '(' ')'
+   14 functionDeclaration: type . ID '(' argParamList ')'
+   15                    | type . ID '(' ')'
 
-    ID  shift, and go to state 28
+    ID  shift, and go to state 33
 
 
 State 20
 
-   32 functionDefinition: FUNCTION functionDeclaration . compoundStatement BLOCK_END FUNCTION
+   16 functionDeclaration: typeCompouse . ID '(' argParamList ')'
+   17                    | typeCompouse . ID '(' ')'
 
-    IF        shift, and go to state 29
-    CONTINUE  shift, and go to state 30
-    BREAK     shift, and go to state 31
-    RETURN    shift, and go to state 32
-    ';'       shift, and go to state 2
-
-    statement           go to state 33
-    jumpStatement       go to state 34
-    selectionStatement  go to state 35
-    statementList       go to state 36
-    compoundStatement   go to state 37
-    declarationList     go to state 38
+    ID  shift, and go to state 34
 
 
 State 21
 
-   34 functionDefinitionList: functionDefinitionList functionDefinition .
+   65 functionDefinitionList: FUNCTION functionDeclaration . compoundStatement BLOCK_END FUNCTION
 
-    $default  reduce using rule 34 (functionDefinitionList)
+    WHILE         shift, and go to state 35
+    DO            shift, and go to state 36
+    IF            shift, and go to state 37
+    FOR           shift, and go to state 38
+    RETURN        shift, and go to state 39
+    INTEGER       shift, and go to state 2
+    FLOAT_NUMBER  shift, and go to state 3
+    STRING        shift, and go to state 4
+    BOOLEAN       shift, and go to state 5
+    SET           shift, and go to state 6
+    ARRAY         shift, and go to state 7
+    MATRIZ        shift, and go to state 8
+    VOID          shift, and go to state 9
+    STRUCT        shift, and go to state 10
+    ';'           shift, and go to state 40
+
+    ';'       [reduce using rule 49 (multiplicativeExpression)]
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    type                      go to state 11
+    typeCompouse              go to state 12
+    statement                 go to state 41
+    jumpStatement             go to state 42
+    conditionalExpression     go to state 43
+    OrExpression              go to state 44
+    expressionStatement       go to state 45
+    iterationStatement        go to state 46
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+    expression                go to state 52
+    selectionStatement        go to state 53
+    statementList             go to state 54
+    compoundStatement         go to state 55
+    typeSpecifier             go to state 14
+    declarationList           go to state 56
 
 
 State 22
 
-   39 alts: alts alt .
+    9 typeCompouse: SET '@' . type
 
-    $default  reduce using rule 39 (alts)
+    INTEGER       shift, and go to state 2
+    FLOAT_NUMBER  shift, and go to state 3
+    STRING        shift, and go to state 4
+    BOOLEAN       shift, and go to state 5
+    ARRAY         shift, and go to state 7
+    VOID          shift, and go to state 9
+
+    type  go to state 57
 
 
 State 23
+
+    8 typeCompouse: MATRIZ '@' . type
+
+    INTEGER       shift, and go to state 2
+    FLOAT_NUMBER  shift, and go to state 3
+    STRING        shift, and go to state 4
+    BOOLEAN       shift, and go to state 5
+    ARRAY         shift, and go to state 7
+    VOID          shift, and go to state 9
+
+    type  go to state 58
+
+
+State 24
+
+    7 typeCompouse: STRUCT '@' . type
+
+    INTEGER       shift, and go to state 2
+    FLOAT_NUMBER  shift, and go to state 3
+    STRING        shift, and go to state 4
+    BOOLEAN       shift, and go to state 5
+    ARRAY         shift, and go to state 7
+    VOID          shift, and go to state 9
+
+    type  go to state 59
+
+
+State 25
+
+   66 functionDefinitionList: functionDefinitionList FUNCTION . functionDeclaration compoundStatement BLOCK_END FUNCTION
+
+    INTEGER       shift, and go to state 2
+    FLOAT_NUMBER  shift, and go to state 3
+    STRING        shift, and go to state 4
+    BOOLEAN       shift, and go to state 5
+    SET           shift, and go to state 6
+    ARRAY         shift, and go to state 7
+    MATRIZ        shift, and go to state 8
+    VOID          shift, and go to state 9
+    STRUCT        shift, and go to state 10
+
+    type                 go to state 19
+    typeCompouse         go to state 20
+    functionDeclaration  go to state 60
+
+
+State 26
+
+   69 Ids: ID .
+
+    $default  reduce using rule 69 (Ids)
+
+
+State 27
+
+   70 Ids: Ids . ',' ID
+   71 initDeclarator: Ids .
+   72               | Ids . '=' initializer
+
+    ','  shift, and go to state 61
+    '='  shift, and go to state 62
+
+    ','       [reduce using rule 71 (initDeclarator)]
+    $default  reduce using rule 71 (initDeclarator)
+
+
+State 28
+
+   78 initDeclaratorList: initDeclarator .
+
+    $default  reduce using rule 78 (initDeclaratorList)
+
+
+State 29
+
+   79 initDeclaratorList: initDeclaratorList . ',' initDeclarator
+   80 declarationList: typeSpecifier initDeclaratorList . ';'
+
+    ','  shift, and go to state 63
+    ';'  shift, and go to state 64
+
+
+State 30
+
+   81 declarationList: declarationList typeSpecifier . initDeclaratorList ';'
+
+    ID  shift, and go to state 26
+
+    Ids                 go to state 27
+    initDeclarator      go to state 28
+    initDeclaratorList  go to state 65
+
+
+State 31
+
+   85 alts: alts alt .
+
+    $default  reduce using rule 85 (alts)
+
+
+State 32
 
     0 $accept: prog $end .
 
     $default  accept
 
 
-State 24
-
-    9 typeCompouse: SET '@' . type
-
-    INTEGER       shift, and go to state 9
-    FLOAT_NUMBER  shift, and go to state 10
-    STRING        shift, and go to state 11
-    BOOLEAN       shift, and go to state 12
-    ARRAY         shift, and go to state 14
-    VOID          shift, and go to state 16
-
-    type  go to state 39
-
-
-State 25
-
-    8 typeCompouse: MATRIZ '@' . type
-
-    INTEGER       shift, and go to state 9
-    FLOAT_NUMBER  shift, and go to state 10
-    STRING        shift, and go to state 11
-    BOOLEAN       shift, and go to state 12
-    ARRAY         shift, and go to state 14
-    VOID          shift, and go to state 16
-
-    type  go to state 40
-
-
-State 26
-
-    7 typeCompouse: STRUCT '@' . type
-
-    INTEGER       shift, and go to state 9
-    FLOAT_NUMBER  shift, and go to state 10
-    STRING        shift, and go to state 11
-    BOOLEAN       shift, and go to state 12
-    ARRAY         shift, and go to state 14
-    VOID          shift, and go to state 16
-
-    type  go to state 41
-
-
-State 27
+State 33
 
    14 functionDeclaration: type ID . '(' argParamList ')'
    15                    | type ID . '(' ')'
 
-    '('  shift, and go to state 42
-
-
-State 28
-
-   16 functionDeclaration: typeCompouse ID . '(' argParamList ')'
-   17                    | typeCompouse ID . '(' ')'
-
-    '('  shift, and go to state 43
-
-
-State 29
-
-   25 selectionStatement: IF . '(' 'a' ')' statement
-   26                   | IF . '(' 't' ')' statement ELSE statement
-
-    '('  shift, and go to state 44
-
-
-State 30
-
-   21 jumpStatement: CONTINUE .
-
-    $default  reduce using rule 21 (jumpStatement)
-
-
-State 31
-
-   22 jumpStatement: BREAK .
-
-    $default  reduce using rule 22 (jumpStatement)
-
-
-State 32
-
-   23 jumpStatement: RETURN .
-   24              | RETURN . 'd'
-
-    'd'  shift, and go to state 45
-
-    $default  reduce using rule 23 (jumpStatement)
-
-
-State 33
-
-   27 statementList: statement . ';'
-
-    ';'  shift, and go to state 46
+    '('  shift, and go to state 66
 
 
 State 34
 
-   20 statement: jumpStatement .
+   16 functionDeclaration: typeCompouse ID . '(' argParamList ')'
+   17                    | typeCompouse ID . '(' ')'
 
-    $default  reduce using rule 20 (statement)
+    '('  shift, and go to state 67
 
 
 State 35
 
-   19 statement: selectionStatement .
+   31 iterationStatement: WHILE . '(' expression ')' statement
 
-    $default  reduce using rule 19 (statement)
+    '('  shift, and go to state 68
 
 
 State 36
 
-   28 statementList: statementList . statement ';'
-   29 compoundStatement: statementList .
+   32 iterationStatement: DO . statement WHILE '(' expression ')' SEMI
 
-    IF        shift, and go to state 29
-    CONTINUE  shift, and go to state 30
-    BREAK     shift, and go to state 31
-    RETURN    shift, and go to state 32
-    ';'       shift, and go to state 2
+    WHILE         shift, and go to state 35
+    DO            shift, and go to state 36
+    IF            shift, and go to state 37
+    FOR           shift, and go to state 38
+    RETURN        shift, and go to state 39
+    INTEGER       shift, and go to state 2
+    FLOAT_NUMBER  shift, and go to state 3
+    STRING        shift, and go to state 4
+    BOOLEAN       shift, and go to state 5
+    SET           shift, and go to state 6
+    ARRAY         shift, and go to state 7
+    MATRIZ        shift, and go to state 8
+    VOID          shift, and go to state 9
+    STRUCT        shift, and go to state 10
+    ';'           shift, and go to state 40
 
-    ';'       [reduce using rule 29 (compoundStatement)]
-    $default  reduce using rule 29 (compoundStatement)
+    ';'       [reduce using rule 49 (multiplicativeExpression)]
+    $default  reduce using rule 49 (multiplicativeExpression)
 
-    statement           go to state 47
-    jumpStatement       go to state 34
-    selectionStatement  go to state 35
-    statementList       go to state 36
-    compoundStatement   go to state 48
-    declarationList     go to state 38
+    type                      go to state 11
+    typeCompouse              go to state 12
+    statement                 go to state 69
+    jumpStatement             go to state 42
+    conditionalExpression     go to state 43
+    OrExpression              go to state 44
+    expressionStatement       go to state 45
+    iterationStatement        go to state 46
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+    expression                go to state 52
+    selectionStatement        go to state 53
+    statementList             go to state 54
+    compoundStatement         go to state 70
+    typeSpecifier             go to state 14
+    declarationList           go to state 56
 
 
 State 37
 
-   18 statement: compoundStatement .
-   32 functionDefinition: FUNCTION functionDeclaration compoundStatement . BLOCK_END FUNCTION
+   58 selectionStatement: IF . '(' expression ')' statement
+   59                   | IF . '(' expression ')' statement ELSE statement
 
-    BLOCK_END  shift, and go to state 49
-
-    $default  reduce using rule 18 (statement)
+    '('  shift, and go to state 71
 
 
 State 38
 
-   30 compoundStatement: declarationList .
-   31                  | declarationList . statementList
+   33 iterationStatement: FOR . '(' expressionStatement expressionStatement ')' statement
+   34                   | FOR . '(' expressionStatement expressionStatement expression ')' statement
 
-    IF        shift, and go to state 29
-    CONTINUE  shift, and go to state 30
-    BREAK     shift, and go to state 31
-    RETURN    shift, and go to state 32
-    ';'       shift, and go to state 2
-
-    ';'       [reduce using rule 30 (compoundStatement)]
-    $default  reduce using rule 30 (compoundStatement)
-
-    statement           go to state 33
-    jumpStatement       go to state 34
-    selectionStatement  go to state 35
-    statementList       go to state 50
-    compoundStatement   go to state 48
-    declarationList     go to state 38
+    '('  shift, and go to state 72
 
 
 State 39
+
+   23 jumpStatement: RETURN .
+   24              | RETURN . expression
+
+    WHILE     reduce using rule 23 (jumpStatement)
+    WHILE     [reduce using rule 49 (multiplicativeExpression)]
+    ELSE      reduce using rule 23 (jumpStatement)
+    ELSE      [reduce using rule 49 (multiplicativeExpression)]
+    ';'       reduce using rule 23 (jumpStatement)
+    ';'       [reduce using rule 49 (multiplicativeExpression)]
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    conditionalExpression     go to state 43
+    OrExpression              go to state 44
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+    expression                go to state 73
+
+
+State 40
+
+   29 expressionStatement: ';' .
+
+    $default  reduce using rule 29 (expressionStatement)
+
+
+State 41
+
+   60 statementList: statement . ';'
+
+    ';'  shift, and go to state 74
+
+
+State 42
+
+   19 statement: jumpStatement .
+
+    $default  reduce using rule 19 (statement)
+
+
+State 43
+
+   56 expression: conditionalExpression .
+
+    $default  reduce using rule 56 (expression)
+
+
+State 44
+
+   25 conditionalExpression: OrExpression .
+   26                      | OrExpression . '?' expression ':' conditionalExpression
+   28 OrExpression: OrExpression . OR_OP AndExpression
+
+    OR_OP  shift, and go to state 75
+    '?'    shift, and go to state 76
+
+    $default  reduce using rule 25 (conditionalExpression)
+
+
+State 45
+
+   20 statement: expressionStatement .
+
+    $default  reduce using rule 20 (statement)
+
+
+State 46
+
+   21 statement: iterationStatement .
+
+    $default  reduce using rule 21 (statement)
+
+
+State 47
+
+   27 OrExpression: AndExpression .
+   36 AndExpression: AndExpression . EQ_OP EqExpression
+
+    EQ_OP  shift, and go to state 77
+
+    $default  reduce using rule 27 (OrExpression)
+
+
+State 48
+
+   38 relationExpression: relationExpression . '<' additiveExpression
+   39                   | relationExpression . '>' additiveExpression
+   40                   | relationExpression . GQ_OP additiveExpression
+   41                   | relationExpression . LQ_OP additiveExpression
+   53 EqExpression: relationExpression .
+
+    LQ_OP  shift, and go to state 78
+    GQ_OP  shift, and go to state 79
+    '<'    shift, and go to state 80
+    '>'    shift, and go to state 81
+
+    $default  reduce using rule 53 (EqExpression)
+
+
+State 49
+
+   37 relationExpression: additiveExpression .
+   43 additiveExpression: additiveExpression . '+' multiplicativeExpression
+   44                   | additiveExpression . '-' multiplicativeExpression
+
+    '+'  shift, and go to state 82
+    '-'  shift, and go to state 83
+
+    $default  reduce using rule 37 (relationExpression)
+
+
+State 50
+
+   42 additiveExpression: multiplicativeExpression .
+   50 multiplicativeExpression: multiplicativeExpression . '*' primaryExpression
+   51                         | multiplicativeExpression . '/' primaryExpression
+   52                         | multiplicativeExpression . '%' primaryExpression
+
+    '*'  shift, and go to state 84
+    '/'  shift, and go to state 85
+    '%'  shift, and go to state 86
+
+    $default  reduce using rule 42 (additiveExpression)
+
+
+State 51
+
+   35 AndExpression: EqExpression .
+   54 EqExpression: EqExpression . EQ_OP relationExpression
+   55             | EqExpression . NQ_OP relationExpression
+
+    EQ_OP  shift, and go to state 87
+    NQ_OP  shift, and go to state 88
+
+    EQ_OP     [reduce using rule 35 (AndExpression)]
+    $default  reduce using rule 35 (AndExpression)
+
+
+State 52
+
+   30 expressionStatement: expression . ';'
+   57 expression: expression . ',' conditionalExpression
+
+    ','  shift, and go to state 89
+    ';'  shift, and go to state 90
+
+
+State 53
+
+   18 statement: selectionStatement .
+
+    $default  reduce using rule 18 (statement)
+
+
+State 54
+
+   61 statementList: statementList . statement ';'
+   62 compoundStatement: statementList .
+
+    WHILE         shift, and go to state 35
+    DO            shift, and go to state 36
+    IF            shift, and go to state 37
+    FOR           shift, and go to state 38
+    RETURN        shift, and go to state 39
+    INTEGER       shift, and go to state 2
+    FLOAT_NUMBER  shift, and go to state 3
+    STRING        shift, and go to state 4
+    BOOLEAN       shift, and go to state 5
+    SET           shift, and go to state 6
+    ARRAY         shift, and go to state 7
+    MATRIZ        shift, and go to state 8
+    VOID          shift, and go to state 9
+    STRUCT        shift, and go to state 10
+    ';'           shift, and go to state 40
+
+    WHILE      [reduce using rule 62 (compoundStatement)]
+    BLOCK_END  reduce using rule 62 (compoundStatement)
+    ELSE       reduce using rule 62 (compoundStatement)
+    ';'        [reduce using rule 49 (multiplicativeExpression)]
+    ';'        [reduce using rule 62 (compoundStatement)]
+    $default   reduce using rule 49 (multiplicativeExpression)
+
+    type                      go to state 11
+    typeCompouse              go to state 12
+    statement                 go to state 91
+    jumpStatement             go to state 42
+    conditionalExpression     go to state 43
+    OrExpression              go to state 44
+    expressionStatement       go to state 45
+    iterationStatement        go to state 46
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+    expression                go to state 52
+    selectionStatement        go to state 53
+    statementList             go to state 54
+    compoundStatement         go to state 70
+    typeSpecifier             go to state 14
+    declarationList           go to state 56
+
+
+State 55
+
+   22 statement: compoundStatement .
+   65 functionDefinitionList: FUNCTION functionDeclaration compoundStatement . BLOCK_END FUNCTION
+
+    BLOCK_END  shift, and go to state 92
+
+    $default  reduce using rule 22 (statement)
+
+
+State 56
+
+   63 compoundStatement: declarationList .
+   64                  | declarationList . statementList
+   81 declarationList: declarationList . typeSpecifier initDeclaratorList ';'
+
+    WHILE         shift, and go to state 35
+    DO            shift, and go to state 36
+    IF            shift, and go to state 37
+    FOR           shift, and go to state 38
+    RETURN        shift, and go to state 39
+    INTEGER       shift, and go to state 2
+    FLOAT_NUMBER  shift, and go to state 3
+    STRING        shift, and go to state 4
+    BOOLEAN       shift, and go to state 5
+    SET           shift, and go to state 6
+    ARRAY         shift, and go to state 7
+    MATRIZ        shift, and go to state 8
+    VOID          shift, and go to state 9
+    STRUCT        shift, and go to state 10
+    ';'           shift, and go to state 40
+
+    WHILE      [reduce using rule 63 (compoundStatement)]
+    BLOCK_END  reduce using rule 63 (compoundStatement)
+    ELSE       reduce using rule 63 (compoundStatement)
+    ';'        [reduce using rule 49 (multiplicativeExpression)]
+    ';'        [reduce using rule 63 (compoundStatement)]
+    $default   reduce using rule 49 (multiplicativeExpression)
+
+    type                      go to state 11
+    typeCompouse              go to state 12
+    statement                 go to state 41
+    jumpStatement             go to state 42
+    conditionalExpression     go to state 43
+    OrExpression              go to state 44
+    expressionStatement       go to state 45
+    iterationStatement        go to state 46
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+    expression                go to state 52
+    selectionStatement        go to state 53
+    statementList             go to state 93
+    compoundStatement         go to state 70
+    typeSpecifier             go to state 94
+    declarationList           go to state 56
+
+
+State 57
 
     9 typeCompouse: SET '@' type .
 
     $default  reduce using rule 9 (typeCompouse)
 
 
-State 40
+State 58
 
     8 typeCompouse: MATRIZ '@' type .
 
     $default  reduce using rule 8 (typeCompouse)
 
 
-State 41
+State 59
 
     7 typeCompouse: STRUCT '@' type .
 
     $default  reduce using rule 7 (typeCompouse)
 
 
-State 42
+State 60
+
+   66 functionDefinitionList: functionDefinitionList FUNCTION functionDeclaration . compoundStatement BLOCK_END FUNCTION
+
+    WHILE         shift, and go to state 35
+    DO            shift, and go to state 36
+    IF            shift, and go to state 37
+    FOR           shift, and go to state 38
+    RETURN        shift, and go to state 39
+    INTEGER       shift, and go to state 2
+    FLOAT_NUMBER  shift, and go to state 3
+    STRING        shift, and go to state 4
+    BOOLEAN       shift, and go to state 5
+    SET           shift, and go to state 6
+    ARRAY         shift, and go to state 7
+    MATRIZ        shift, and go to state 8
+    VOID          shift, and go to state 9
+    STRUCT        shift, and go to state 10
+    ';'           shift, and go to state 40
+
+    ';'       [reduce using rule 49 (multiplicativeExpression)]
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    type                      go to state 11
+    typeCompouse              go to state 12
+    statement                 go to state 41
+    jumpStatement             go to state 42
+    conditionalExpression     go to state 43
+    OrExpression              go to state 44
+    expressionStatement       go to state 45
+    iterationStatement        go to state 46
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+    expression                go to state 52
+    selectionStatement        go to state 53
+    statementList             go to state 54
+    compoundStatement         go to state 95
+    typeSpecifier             go to state 14
+    declarationList           go to state 56
+
+
+State 61
+
+   70 Ids: Ids ',' . ID
+
+    ID  shift, and go to state 96
+
+
+State 62
+
+   72 initDeclarator: Ids '=' . initializer
+
+    '{'  shift, and go to state 97
+
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    conditionalExpression     go to state 98
+    OrExpression              go to state 44
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+    initializer               go to state 99
+
+
+State 63
+
+   79 initDeclaratorList: initDeclaratorList ',' . initDeclarator
+
+    ID  shift, and go to state 26
+
+    Ids             go to state 27
+    initDeclarator  go to state 100
+
+
+State 64
+
+   80 declarationList: typeSpecifier initDeclaratorList ';' .
+
+    $default  reduce using rule 80 (declarationList)
+
+
+State 65
+
+   79 initDeclaratorList: initDeclaratorList . ',' initDeclarator
+   81 declarationList: declarationList typeSpecifier initDeclaratorList . ';'
+
+    ','  shift, and go to state 63
+    ';'  shift, and go to state 101
+
+
+State 66
 
    14 functionDeclaration: type ID '(' . argParamList ')'
    15                    | type ID '(' . ')'
 
-    INTEGER       shift, and go to state 9
-    FLOAT_NUMBER  shift, and go to state 10
-    STRING        shift, and go to state 11
-    BOOLEAN       shift, and go to state 12
-    SET           shift, and go to state 13
-    ARRAY         shift, and go to state 14
-    MATRIZ        shift, and go to state 15
-    VOID          shift, and go to state 16
-    STRUCT        shift, and go to state 17
-    ')'           shift, and go to state 51
+    INTEGER       shift, and go to state 2
+    FLOAT_NUMBER  shift, and go to state 3
+    STRING        shift, and go to state 4
+    BOOLEAN       shift, and go to state 5
+    SET           shift, and go to state 6
+    ARRAY         shift, and go to state 7
+    MATRIZ        shift, and go to state 8
+    VOID          shift, and go to state 9
+    STRUCT        shift, and go to state 10
+    ')'           shift, and go to state 102
 
-    type          go to state 52
-    typeCompouse  go to state 53
-    argParamList  go to state 54
-    argParam      go to state 55
+    type          go to state 103
+    typeCompouse  go to state 104
+    argParamList  go to state 105
+    argParam      go to state 106
 
 
-State 43
+State 67
 
    16 functionDeclaration: typeCompouse ID '(' . argParamList ')'
    17                    | typeCompouse ID '(' . ')'
 
-    INTEGER       shift, and go to state 9
-    FLOAT_NUMBER  shift, and go to state 10
-    STRING        shift, and go to state 11
-    BOOLEAN       shift, and go to state 12
-    SET           shift, and go to state 13
-    ARRAY         shift, and go to state 14
-    MATRIZ        shift, and go to state 15
-    VOID          shift, and go to state 16
-    STRUCT        shift, and go to state 17
-    ')'           shift, and go to state 56
+    INTEGER       shift, and go to state 2
+    FLOAT_NUMBER  shift, and go to state 3
+    STRING        shift, and go to state 4
+    BOOLEAN       shift, and go to state 5
+    SET           shift, and go to state 6
+    ARRAY         shift, and go to state 7
+    MATRIZ        shift, and go to state 8
+    VOID          shift, and go to state 9
+    STRUCT        shift, and go to state 10
+    ')'           shift, and go to state 107
 
-    type          go to state 52
-    typeCompouse  go to state 53
-    argParamList  go to state 57
-    argParam      go to state 55
-
-
-State 44
-
-   25 selectionStatement: IF '(' . 'a' ')' statement
-   26                   | IF '(' . 't' ')' statement ELSE statement
-
-    'a'  shift, and go to state 58
-    't'  shift, and go to state 59
+    type          go to state 103
+    typeCompouse  go to state 104
+    argParamList  go to state 108
+    argParam      go to state 106
 
 
-State 45
+State 68
 
-   24 jumpStatement: RETURN 'd' .
+   31 iterationStatement: WHILE '(' . expression ')' statement
+
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    conditionalExpression     go to state 43
+    OrExpression              go to state 44
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+    expression                go to state 109
+
+
+State 69
+
+   32 iterationStatement: DO statement . WHILE '(' expression ')' SEMI
+   60 statementList: statement . ';'
+
+    WHILE  shift, and go to state 110
+    ';'    shift, and go to state 74
+
+
+State 70
+
+   22 statement: compoundStatement .
+
+    $default  reduce using rule 22 (statement)
+
+
+State 71
+
+   58 selectionStatement: IF '(' . expression ')' statement
+   59                   | IF '(' . expression ')' statement ELSE statement
+
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    conditionalExpression     go to state 43
+    OrExpression              go to state 44
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+    expression                go to state 111
+
+
+State 72
+
+   33 iterationStatement: FOR '(' . expressionStatement expressionStatement ')' statement
+   34                   | FOR '(' . expressionStatement expressionStatement expression ')' statement
+
+    ';'  shift, and go to state 40
+
+    ';'       [reduce using rule 49 (multiplicativeExpression)]
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    conditionalExpression     go to state 43
+    OrExpression              go to state 44
+    expressionStatement       go to state 112
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+    expression                go to state 52
+
+
+State 73
+
+   24 jumpStatement: RETURN expression .
+   57 expression: expression . ',' conditionalExpression
+
+    ','  shift, and go to state 89
 
     $default  reduce using rule 24 (jumpStatement)
 
 
-State 46
+State 74
 
-   27 statementList: statement ';' .
+   60 statementList: statement ';' .
 
-    $default  reduce using rule 27 (statementList)
-
-
-State 47
-
-   27 statementList: statement . ';'
-   28              | statementList statement . ';'
-
-    ';'  shift, and go to state 60
+    $default  reduce using rule 60 (statementList)
 
 
-State 48
+State 75
 
-   18 statement: compoundStatement .
+   28 OrExpression: OrExpression OR_OP . AndExpression
 
-    $default  reduce using rule 18 (statement)
+    $default  reduce using rule 49 (multiplicativeExpression)
 
-
-State 49
-
-   32 functionDefinition: FUNCTION functionDeclaration compoundStatement BLOCK_END . FUNCTION
-
-    FUNCTION  shift, and go to state 61
-
-
-State 50
-
-   28 statementList: statementList . statement ';'
-   29 compoundStatement: statementList .
-   31                  | declarationList statementList .
-
-    IF        shift, and go to state 29
-    CONTINUE  shift, and go to state 30
-    BREAK     shift, and go to state 31
-    RETURN    shift, and go to state 32
-    ';'       shift, and go to state 2
-
-    ';'       [reduce using rule 29 (compoundStatement)]
-    ';'       [reduce using rule 31 (compoundStatement)]
-    $default  reduce using rule 31 (compoundStatement)
-
-    statement           go to state 47
-    jumpStatement       go to state 34
-    selectionStatement  go to state 35
-    statementList       go to state 36
-    compoundStatement   go to state 48
-    declarationList     go to state 38
+    AndExpression             go to state 113
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
 
 
-State 51
+State 76
+
+   26 conditionalExpression: OrExpression '?' . expression ':' conditionalExpression
+
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    conditionalExpression     go to state 43
+    OrExpression              go to state 44
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+    expression                go to state 114
+
+
+State 77
+
+   36 AndExpression: AndExpression EQ_OP . EqExpression
+
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 115
+
+
+State 78
+
+   41 relationExpression: relationExpression LQ_OP . additiveExpression
+
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    additiveExpression        go to state 116
+    multiplicativeExpression  go to state 50
+
+
+State 79
+
+   40 relationExpression: relationExpression GQ_OP . additiveExpression
+
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    additiveExpression        go to state 117
+    multiplicativeExpression  go to state 50
+
+
+State 80
+
+   38 relationExpression: relationExpression '<' . additiveExpression
+
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    additiveExpression        go to state 118
+    multiplicativeExpression  go to state 50
+
+
+State 81
+
+   39 relationExpression: relationExpression '>' . additiveExpression
+
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    additiveExpression        go to state 119
+    multiplicativeExpression  go to state 50
+
+
+State 82
+
+   43 additiveExpression: additiveExpression '+' . multiplicativeExpression
+
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    multiplicativeExpression  go to state 120
+
+
+State 83
+
+   44 additiveExpression: additiveExpression '-' . multiplicativeExpression
+
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    multiplicativeExpression  go to state 121
+
+
+State 84
+
+   50 multiplicativeExpression: multiplicativeExpression '*' . primaryExpression
+
+    ID              shift, and go to state 122
+    CONSTANT        shift, and go to state 123
+    STRING_LITERAL  shift, and go to state 124
+    '('             shift, and go to state 125
+
+    primaryExpression  go to state 126
+
+
+State 85
+
+   51 multiplicativeExpression: multiplicativeExpression '/' . primaryExpression
+
+    ID              shift, and go to state 122
+    CONSTANT        shift, and go to state 123
+    STRING_LITERAL  shift, and go to state 124
+    '('             shift, and go to state 125
+
+    primaryExpression  go to state 127
+
+
+State 86
+
+   52 multiplicativeExpression: multiplicativeExpression '%' . primaryExpression
+
+    ID              shift, and go to state 122
+    CONSTANT        shift, and go to state 123
+    STRING_LITERAL  shift, and go to state 124
+    '('             shift, and go to state 125
+
+    primaryExpression  go to state 128
+
+
+State 87
+
+   54 EqExpression: EqExpression EQ_OP . relationExpression
+
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    relationExpression        go to state 129
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+
+
+State 88
+
+   55 EqExpression: EqExpression NQ_OP . relationExpression
+
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    relationExpression        go to state 130
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+
+
+State 89
+
+   57 expression: expression ',' . conditionalExpression
+
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    conditionalExpression     go to state 131
+    OrExpression              go to state 44
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+
+
+State 90
+
+   30 expressionStatement: expression ';' .
+
+    $default  reduce using rule 30 (expressionStatement)
+
+
+State 91
+
+   60 statementList: statement . ';'
+   61              | statementList statement . ';'
+
+    ';'  shift, and go to state 132
+
+
+State 92
+
+   65 functionDefinitionList: FUNCTION functionDeclaration compoundStatement BLOCK_END . FUNCTION
+
+    FUNCTION  shift, and go to state 133
+
+
+State 93
+
+   61 statementList: statementList . statement ';'
+   62 compoundStatement: statementList .
+   64                  | declarationList statementList .
+
+    WHILE         shift, and go to state 35
+    DO            shift, and go to state 36
+    IF            shift, and go to state 37
+    FOR           shift, and go to state 38
+    RETURN        shift, and go to state 39
+    INTEGER       shift, and go to state 2
+    FLOAT_NUMBER  shift, and go to state 3
+    STRING        shift, and go to state 4
+    BOOLEAN       shift, and go to state 5
+    SET           shift, and go to state 6
+    ARRAY         shift, and go to state 7
+    MATRIZ        shift, and go to state 8
+    VOID          shift, and go to state 9
+    STRUCT        shift, and go to state 10
+    ';'           shift, and go to state 40
+
+    WHILE      [reduce using rule 64 (compoundStatement)]
+    BLOCK_END  reduce using rule 64 (compoundStatement)
+    ELSE       reduce using rule 64 (compoundStatement)
+    ';'        [reduce using rule 49 (multiplicativeExpression)]
+    ';'        [reduce using rule 62 (compoundStatement)]
+    ';'        [reduce using rule 64 (compoundStatement)]
+    $default   reduce using rule 49 (multiplicativeExpression)
+
+    type                      go to state 11
+    typeCompouse              go to state 12
+    statement                 go to state 91
+    jumpStatement             go to state 42
+    conditionalExpression     go to state 43
+    OrExpression              go to state 44
+    expressionStatement       go to state 45
+    iterationStatement        go to state 46
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+    expression                go to state 52
+    selectionStatement        go to state 53
+    statementList             go to state 54
+    compoundStatement         go to state 70
+    typeSpecifier             go to state 14
+    declarationList           go to state 56
+
+
+State 94
+
+   80 declarationList: typeSpecifier . initDeclaratorList ';'
+   81                | declarationList typeSpecifier . initDeclaratorList ';'
+
+    ID  shift, and go to state 26
+
+    Ids                 go to state 27
+    initDeclarator      go to state 28
+    initDeclaratorList  go to state 134
+
+
+State 95
+
+   22 statement: compoundStatement .
+   66 functionDefinitionList: functionDefinitionList FUNCTION functionDeclaration compoundStatement . BLOCK_END FUNCTION
+
+    BLOCK_END  shift, and go to state 135
+
+    $default  reduce using rule 22 (statement)
+
+
+State 96
+
+   70 Ids: Ids ',' ID .
+
+    $default  reduce using rule 70 (Ids)
+
+
+State 97
+
+   74 initializer: '{' . initializerList '}'
+   75            | '{' . initializerList ',' '}'
+
+    '{'  shift, and go to state 97
+
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    conditionalExpression     go to state 98
+    OrExpression              go to state 44
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+    initializer               go to state 136
+    initializerList           go to state 137
+
+
+State 98
+
+   73 initializer: conditionalExpression .
+
+    $default  reduce using rule 73 (initializer)
+
+
+State 99
+
+   72 initDeclarator: Ids '=' initializer .
+
+    $default  reduce using rule 72 (initDeclarator)
+
+
+State 100
+
+   79 initDeclaratorList: initDeclaratorList ',' initDeclarator .
+
+    $default  reduce using rule 79 (initDeclaratorList)
+
+
+State 101
+
+   81 declarationList: declarationList typeSpecifier initDeclaratorList ';' .
+
+    $default  reduce using rule 81 (declarationList)
+
+
+State 102
 
    15 functionDeclaration: type ID '(' ')' .
 
     $default  reduce using rule 15 (functionDeclaration)
 
 
-State 52
+State 103
 
    12 argParam: type . ID
 
-    ID  shift, and go to state 62
+    ID  shift, and go to state 138
 
 
-State 53
+State 104
 
    13 argParam: typeCompouse . '@' type ID
 
-    '@'  shift, and go to state 63
+    '@'  shift, and go to state 139
 
 
-State 54
+State 105
 
-   11 argParamList: argParamList . COMMA argParam
+   11 argParamList: argParamList . ',' argParam
    14 functionDeclaration: type ID '(' argParamList . ')'
 
-    COMMA  shift, and go to state 64
-    ')'    shift, and go to state 65
+    ','  shift, and go to state 140
+    ')'  shift, and go to state 141
 
 
-State 55
+State 106
 
    10 argParamList: argParam .
 
     $default  reduce using rule 10 (argParamList)
 
 
-State 56
+State 107
 
    17 functionDeclaration: typeCompouse ID '(' ')' .
 
     $default  reduce using rule 17 (functionDeclaration)
 
 
-State 57
+State 108
 
-   11 argParamList: argParamList . COMMA argParam
+   11 argParamList: argParamList . ',' argParam
    16 functionDeclaration: typeCompouse ID '(' argParamList . ')'
 
-    COMMA  shift, and go to state 64
-    ')'    shift, and go to state 66
+    ','  shift, and go to state 140
+    ')'  shift, and go to state 142
 
 
-State 58
+State 109
 
-   25 selectionStatement: IF '(' 'a' . ')' statement
+   31 iterationStatement: WHILE '(' expression . ')' statement
+   57 expression: expression . ',' conditionalExpression
 
-    ')'  shift, and go to state 67
-
-
-State 59
-
-   26 selectionStatement: IF '(' 't' . ')' statement ELSE statement
-
-    ')'  shift, and go to state 68
+    ','  shift, and go to state 89
+    ')'  shift, and go to state 143
 
 
-State 60
+State 110
 
-   27 statementList: statement ';' .
-   28              | statementList statement ';' .
+   32 iterationStatement: DO statement WHILE . '(' expression ')' SEMI
 
-    BLOCK_END  reduce using rule 28 (statementList)
-    IF         reduce using rule 27 (statementList)
-    IF         [reduce using rule 28 (statementList)]
-    ELSE       reduce using rule 28 (statementList)
-    CONTINUE   reduce using rule 27 (statementList)
-    CONTINUE   [reduce using rule 28 (statementList)]
-    BREAK      reduce using rule 27 (statementList)
-    BREAK      [reduce using rule 28 (statementList)]
-    RETURN     reduce using rule 27 (statementList)
-    RETURN     [reduce using rule 28 (statementList)]
-    ';'        reduce using rule 27 (statementList)
-    ';'        [reduce using rule 28 (statementList)]
-    $default   reduce using rule 27 (statementList)
+    '('  shift, and go to state 144
 
 
-State 61
+State 111
 
-   32 functionDefinition: FUNCTION functionDeclaration compoundStatement BLOCK_END FUNCTION .
+   57 expression: expression . ',' conditionalExpression
+   58 selectionStatement: IF '(' expression . ')' statement
+   59                   | IF '(' expression . ')' statement ELSE statement
 
-    $default  reduce using rule 32 (functionDefinition)
+    ','  shift, and go to state 89
+    ')'  shift, and go to state 145
 
 
-State 62
+State 112
+
+   33 iterationStatement: FOR '(' expressionStatement . expressionStatement ')' statement
+   34                   | FOR '(' expressionStatement . expressionStatement expression ')' statement
+
+    ';'  shift, and go to state 40
+
+    ';'       [reduce using rule 49 (multiplicativeExpression)]
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    conditionalExpression     go to state 43
+    OrExpression              go to state 44
+    expressionStatement       go to state 146
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+    expression                go to state 52
+
+
+State 113
+
+   28 OrExpression: OrExpression OR_OP AndExpression .
+   36 AndExpression: AndExpression . EQ_OP EqExpression
+
+    EQ_OP  shift, and go to state 77
+
+    $default  reduce using rule 28 (OrExpression)
+
+
+State 114
+
+   26 conditionalExpression: OrExpression '?' expression . ':' conditionalExpression
+   57 expression: expression . ',' conditionalExpression
+
+    ','  shift, and go to state 89
+    ':'  shift, and go to state 147
+
+
+State 115
+
+   36 AndExpression: AndExpression EQ_OP EqExpression .
+   54 EqExpression: EqExpression . EQ_OP relationExpression
+   55             | EqExpression . NQ_OP relationExpression
+
+    EQ_OP  shift, and go to state 87
+    NQ_OP  shift, and go to state 88
+
+    EQ_OP     [reduce using rule 36 (AndExpression)]
+    $default  reduce using rule 36 (AndExpression)
+
+
+State 116
+
+   41 relationExpression: relationExpression LQ_OP additiveExpression .
+   43 additiveExpression: additiveExpression . '+' multiplicativeExpression
+   44                   | additiveExpression . '-' multiplicativeExpression
+
+    '+'  shift, and go to state 82
+    '-'  shift, and go to state 83
+
+    $default  reduce using rule 41 (relationExpression)
+
+
+State 117
+
+   40 relationExpression: relationExpression GQ_OP additiveExpression .
+   43 additiveExpression: additiveExpression . '+' multiplicativeExpression
+   44                   | additiveExpression . '-' multiplicativeExpression
+
+    '+'  shift, and go to state 82
+    '-'  shift, and go to state 83
+
+    $default  reduce using rule 40 (relationExpression)
+
+
+State 118
+
+   38 relationExpression: relationExpression '<' additiveExpression .
+   43 additiveExpression: additiveExpression . '+' multiplicativeExpression
+   44                   | additiveExpression . '-' multiplicativeExpression
+
+    '+'  shift, and go to state 82
+    '-'  shift, and go to state 83
+
+    $default  reduce using rule 38 (relationExpression)
+
+
+State 119
+
+   39 relationExpression: relationExpression '>' additiveExpression .
+   43 additiveExpression: additiveExpression . '+' multiplicativeExpression
+   44                   | additiveExpression . '-' multiplicativeExpression
+
+    '+'  shift, and go to state 82
+    '-'  shift, and go to state 83
+
+    $default  reduce using rule 39 (relationExpression)
+
+
+State 120
+
+   43 additiveExpression: additiveExpression '+' multiplicativeExpression .
+   50 multiplicativeExpression: multiplicativeExpression . '*' primaryExpression
+   51                         | multiplicativeExpression . '/' primaryExpression
+   52                         | multiplicativeExpression . '%' primaryExpression
+
+    '*'  shift, and go to state 84
+    '/'  shift, and go to state 85
+    '%'  shift, and go to state 86
+
+    $default  reduce using rule 43 (additiveExpression)
+
+
+State 121
+
+   44 additiveExpression: additiveExpression '-' multiplicativeExpression .
+   50 multiplicativeExpression: multiplicativeExpression . '*' primaryExpression
+   51                         | multiplicativeExpression . '/' primaryExpression
+   52                         | multiplicativeExpression . '%' primaryExpression
+
+    '*'  shift, and go to state 84
+    '/'  shift, and go to state 85
+    '%'  shift, and go to state 86
+
+    $default  reduce using rule 44 (additiveExpression)
+
+
+State 122
+
+   45 primaryExpression: ID .
+
+    $default  reduce using rule 45 (primaryExpression)
+
+
+State 123
+
+   46 primaryExpression: CONSTANT .
+
+    $default  reduce using rule 46 (primaryExpression)
+
+
+State 124
+
+   47 primaryExpression: STRING_LITERAL .
+
+    $default  reduce using rule 47 (primaryExpression)
+
+
+State 125
+
+   48 primaryExpression: '(' . expression ')'
+
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    conditionalExpression     go to state 43
+    OrExpression              go to state 44
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+    expression                go to state 148
+
+
+State 126
+
+   50 multiplicativeExpression: multiplicativeExpression '*' primaryExpression .
+
+    $default  reduce using rule 50 (multiplicativeExpression)
+
+
+State 127
+
+   51 multiplicativeExpression: multiplicativeExpression '/' primaryExpression .
+
+    $default  reduce using rule 51 (multiplicativeExpression)
+
+
+State 128
+
+   52 multiplicativeExpression: multiplicativeExpression '%' primaryExpression .
+
+    $default  reduce using rule 52 (multiplicativeExpression)
+
+
+State 129
+
+   38 relationExpression: relationExpression . '<' additiveExpression
+   39                   | relationExpression . '>' additiveExpression
+   40                   | relationExpression . GQ_OP additiveExpression
+   41                   | relationExpression . LQ_OP additiveExpression
+   54 EqExpression: EqExpression EQ_OP relationExpression .
+
+    LQ_OP  shift, and go to state 78
+    GQ_OP  shift, and go to state 79
+    '<'    shift, and go to state 80
+    '>'    shift, and go to state 81
+
+    $default  reduce using rule 54 (EqExpression)
+
+
+State 130
+
+   38 relationExpression: relationExpression . '<' additiveExpression
+   39                   | relationExpression . '>' additiveExpression
+   40                   | relationExpression . GQ_OP additiveExpression
+   41                   | relationExpression . LQ_OP additiveExpression
+   55 EqExpression: EqExpression NQ_OP relationExpression .
+
+    LQ_OP  shift, and go to state 78
+    GQ_OP  shift, and go to state 79
+    '<'    shift, and go to state 80
+    '>'    shift, and go to state 81
+
+    $default  reduce using rule 55 (EqExpression)
+
+
+State 131
+
+   57 expression: expression ',' conditionalExpression .
+
+    $default  reduce using rule 57 (expression)
+
+
+State 132
+
+   60 statementList: statement ';' .
+   61              | statementList statement ';' .
+
+    WHILE         reduce using rule 60 (statementList)
+    WHILE         [reduce using rule 61 (statementList)]
+    BLOCK_END     reduce using rule 61 (statementList)
+    DO            reduce using rule 60 (statementList)
+    DO            [reduce using rule 61 (statementList)]
+    IF            reduce using rule 60 (statementList)
+    IF            [reduce using rule 61 (statementList)]
+    ELSE          reduce using rule 61 (statementList)
+    OR_OP         reduce using rule 60 (statementList)
+    OR_OP         [reduce using rule 61 (statementList)]
+    LQ_OP         reduce using rule 60 (statementList)
+    LQ_OP         [reduce using rule 61 (statementList)]
+    GQ_OP         reduce using rule 60 (statementList)
+    GQ_OP         [reduce using rule 61 (statementList)]
+    EQ_OP         reduce using rule 60 (statementList)
+    EQ_OP         [reduce using rule 61 (statementList)]
+    NQ_OP         reduce using rule 60 (statementList)
+    NQ_OP         [reduce using rule 61 (statementList)]
+    FOR           reduce using rule 60 (statementList)
+    FOR           [reduce using rule 61 (statementList)]
+    RETURN        reduce using rule 60 (statementList)
+    RETURN        [reduce using rule 61 (statementList)]
+    INTEGER       reduce using rule 60 (statementList)
+    INTEGER       [reduce using rule 61 (statementList)]
+    FLOAT_NUMBER  reduce using rule 60 (statementList)
+    FLOAT_NUMBER  [reduce using rule 61 (statementList)]
+    STRING        reduce using rule 60 (statementList)
+    STRING        [reduce using rule 61 (statementList)]
+    BOOLEAN       reduce using rule 60 (statementList)
+    BOOLEAN       [reduce using rule 61 (statementList)]
+    SET           reduce using rule 60 (statementList)
+    SET           [reduce using rule 61 (statementList)]
+    ARRAY         reduce using rule 60 (statementList)
+    ARRAY         [reduce using rule 61 (statementList)]
+    MATRIZ        reduce using rule 60 (statementList)
+    MATRIZ        [reduce using rule 61 (statementList)]
+    VOID          reduce using rule 60 (statementList)
+    VOID          [reduce using rule 61 (statementList)]
+    STRUCT        reduce using rule 60 (statementList)
+    STRUCT        [reduce using rule 61 (statementList)]
+    ','           reduce using rule 60 (statementList)
+    ','           [reduce using rule 61 (statementList)]
+    '?'           reduce using rule 60 (statementList)
+    '?'           [reduce using rule 61 (statementList)]
+    ';'           reduce using rule 60 (statementList)
+    ';'           [reduce using rule 61 (statementList)]
+    '<'           reduce using rule 60 (statementList)
+    '<'           [reduce using rule 61 (statementList)]
+    '>'           reduce using rule 60 (statementList)
+    '>'           [reduce using rule 61 (statementList)]
+    '+'           reduce using rule 60 (statementList)
+    '+'           [reduce using rule 61 (statementList)]
+    '-'           reduce using rule 60 (statementList)
+    '-'           [reduce using rule 61 (statementList)]
+    '*'           reduce using rule 60 (statementList)
+    '*'           [reduce using rule 61 (statementList)]
+    '/'           reduce using rule 60 (statementList)
+    '/'           [reduce using rule 61 (statementList)]
+    '%'           reduce using rule 60 (statementList)
+    '%'           [reduce using rule 61 (statementList)]
+    $default      reduce using rule 60 (statementList)
+
+
+State 133
+
+   65 functionDefinitionList: FUNCTION functionDeclaration compoundStatement BLOCK_END FUNCTION .
+
+    $default  reduce using rule 65 (functionDefinitionList)
+
+
+State 134
+
+   79 initDeclaratorList: initDeclaratorList . ',' initDeclarator
+   80 declarationList: typeSpecifier initDeclaratorList . ';'
+   81                | declarationList typeSpecifier initDeclaratorList . ';'
+
+    ','  shift, and go to state 63
+    ';'  shift, and go to state 149
+
+
+State 135
+
+   66 functionDefinitionList: functionDefinitionList FUNCTION functionDeclaration compoundStatement BLOCK_END . FUNCTION
+
+    FUNCTION  shift, and go to state 150
+
+
+State 136
+
+   76 initializerList: initializer .
+
+    $default  reduce using rule 76 (initializerList)
+
+
+State 137
+
+   74 initializer: '{' initializerList . '}'
+   75            | '{' initializerList . ',' '}'
+   77 initializerList: initializerList . ',' initializer
+
+    ','  shift, and go to state 151
+    '}'  shift, and go to state 152
+
+
+State 138
 
    12 argParam: type ID .
 
     $default  reduce using rule 12 (argParam)
 
 
-State 63
+State 139
 
    13 argParam: typeCompouse '@' . type ID
 
-    INTEGER       shift, and go to state 9
-    FLOAT_NUMBER  shift, and go to state 10
-    STRING        shift, and go to state 11
-    BOOLEAN       shift, and go to state 12
-    ARRAY         shift, and go to state 14
-    VOID          shift, and go to state 16
+    INTEGER       shift, and go to state 2
+    FLOAT_NUMBER  shift, and go to state 3
+    STRING        shift, and go to state 4
+    BOOLEAN       shift, and go to state 5
+    ARRAY         shift, and go to state 7
+    VOID          shift, and go to state 9
 
-    type  go to state 69
-
-
-State 64
-
-   11 argParamList: argParamList COMMA . argParam
-
-    INTEGER       shift, and go to state 9
-    FLOAT_NUMBER  shift, and go to state 10
-    STRING        shift, and go to state 11
-    BOOLEAN       shift, and go to state 12
-    SET           shift, and go to state 13
-    ARRAY         shift, and go to state 14
-    MATRIZ        shift, and go to state 15
-    VOID          shift, and go to state 16
-    STRUCT        shift, and go to state 17
-
-    type          go to state 52
-    typeCompouse  go to state 53
-    argParam      go to state 70
+    type  go to state 153
 
 
-State 65
+State 140
+
+   11 argParamList: argParamList ',' . argParam
+
+    INTEGER       shift, and go to state 2
+    FLOAT_NUMBER  shift, and go to state 3
+    STRING        shift, and go to state 4
+    BOOLEAN       shift, and go to state 5
+    SET           shift, and go to state 6
+    ARRAY         shift, and go to state 7
+    MATRIZ        shift, and go to state 8
+    VOID          shift, and go to state 9
+    STRUCT        shift, and go to state 10
+
+    type          go to state 103
+    typeCompouse  go to state 104
+    argParam      go to state 154
+
+
+State 141
 
    14 functionDeclaration: type ID '(' argParamList ')' .
 
     $default  reduce using rule 14 (functionDeclaration)
 
 
-State 66
+State 142
 
    16 functionDeclaration: typeCompouse ID '(' argParamList ')' .
 
     $default  reduce using rule 16 (functionDeclaration)
 
 
-State 67
+State 143
 
-   25 selectionStatement: IF '(' 'a' ')' . statement
+   31 iterationStatement: WHILE '(' expression ')' . statement
 
-    IF        shift, and go to state 29
-    CONTINUE  shift, and go to state 30
-    BREAK     shift, and go to state 31
-    RETURN    shift, and go to state 32
-    ';'       shift, and go to state 2
+    WHILE         shift, and go to state 35
+    DO            shift, and go to state 36
+    IF            shift, and go to state 37
+    FOR           shift, and go to state 38
+    RETURN        shift, and go to state 39
+    INTEGER       shift, and go to state 2
+    FLOAT_NUMBER  shift, and go to state 3
+    STRING        shift, and go to state 4
+    BOOLEAN       shift, and go to state 5
+    SET           shift, and go to state 6
+    ARRAY         shift, and go to state 7
+    MATRIZ        shift, and go to state 8
+    VOID          shift, and go to state 9
+    STRUCT        shift, and go to state 10
+    ';'           shift, and go to state 40
 
-    statement           go to state 71
-    jumpStatement       go to state 34
-    selectionStatement  go to state 35
-    statementList       go to state 36
-    compoundStatement   go to state 48
-    declarationList     go to state 38
+    ';'       [reduce using rule 49 (multiplicativeExpression)]
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    type                      go to state 11
+    typeCompouse              go to state 12
+    statement                 go to state 155
+    jumpStatement             go to state 42
+    conditionalExpression     go to state 43
+    OrExpression              go to state 44
+    expressionStatement       go to state 45
+    iterationStatement        go to state 46
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+    expression                go to state 52
+    selectionStatement        go to state 53
+    statementList             go to state 54
+    compoundStatement         go to state 70
+    typeSpecifier             go to state 14
+    declarationList           go to state 56
 
 
-State 68
+State 144
 
-   26 selectionStatement: IF '(' 't' ')' . statement ELSE statement
+   32 iterationStatement: DO statement WHILE '(' . expression ')' SEMI
 
-    IF        shift, and go to state 29
-    CONTINUE  shift, and go to state 30
-    BREAK     shift, and go to state 31
-    RETURN    shift, and go to state 32
-    ';'       shift, and go to state 2
+    $default  reduce using rule 49 (multiplicativeExpression)
 
-    statement           go to state 72
-    jumpStatement       go to state 34
-    selectionStatement  go to state 35
-    statementList       go to state 36
-    compoundStatement   go to state 48
-    declarationList     go to state 38
+    conditionalExpression     go to state 43
+    OrExpression              go to state 44
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+    expression                go to state 156
 
 
-State 69
+State 145
+
+   58 selectionStatement: IF '(' expression ')' . statement
+   59                   | IF '(' expression ')' . statement ELSE statement
+
+    WHILE         shift, and go to state 35
+    DO            shift, and go to state 36
+    IF            shift, and go to state 37
+    FOR           shift, and go to state 38
+    RETURN        shift, and go to state 39
+    INTEGER       shift, and go to state 2
+    FLOAT_NUMBER  shift, and go to state 3
+    STRING        shift, and go to state 4
+    BOOLEAN       shift, and go to state 5
+    SET           shift, and go to state 6
+    ARRAY         shift, and go to state 7
+    MATRIZ        shift, and go to state 8
+    VOID          shift, and go to state 9
+    STRUCT        shift, and go to state 10
+    ';'           shift, and go to state 40
+
+    ';'       [reduce using rule 49 (multiplicativeExpression)]
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    type                      go to state 11
+    typeCompouse              go to state 12
+    statement                 go to state 157
+    jumpStatement             go to state 42
+    conditionalExpression     go to state 43
+    OrExpression              go to state 44
+    expressionStatement       go to state 45
+    iterationStatement        go to state 46
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+    expression                go to state 52
+    selectionStatement        go to state 53
+    statementList             go to state 54
+    compoundStatement         go to state 70
+    typeSpecifier             go to state 14
+    declarationList           go to state 56
+
+
+State 146
+
+   33 iterationStatement: FOR '(' expressionStatement expressionStatement . ')' statement
+   34                   | FOR '(' expressionStatement expressionStatement . expression ')' statement
+
+    ')'  shift, and go to state 158
+
+    ')'       [reduce using rule 49 (multiplicativeExpression)]
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    conditionalExpression     go to state 43
+    OrExpression              go to state 44
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+    expression                go to state 159
+
+
+State 147
+
+   26 conditionalExpression: OrExpression '?' expression ':' . conditionalExpression
+
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    conditionalExpression     go to state 160
+    OrExpression              go to state 44
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+
+
+State 148
+
+   48 primaryExpression: '(' expression . ')'
+   57 expression: expression . ',' conditionalExpression
+
+    ','  shift, and go to state 89
+    ')'  shift, and go to state 161
+
+
+State 149
+
+   80 declarationList: typeSpecifier initDeclaratorList ';' .
+   81                | declarationList typeSpecifier initDeclaratorList ';' .
+
+    WHILE         reduce using rule 80 (declarationList)
+    WHILE         [reduce using rule 81 (declarationList)]
+    BLOCK_END     reduce using rule 81 (declarationList)
+    DO            reduce using rule 80 (declarationList)
+    DO            [reduce using rule 81 (declarationList)]
+    IF            reduce using rule 80 (declarationList)
+    IF            [reduce using rule 81 (declarationList)]
+    ELSE          reduce using rule 81 (declarationList)
+    OR_OP         reduce using rule 80 (declarationList)
+    OR_OP         [reduce using rule 81 (declarationList)]
+    LQ_OP         reduce using rule 80 (declarationList)
+    LQ_OP         [reduce using rule 81 (declarationList)]
+    GQ_OP         reduce using rule 80 (declarationList)
+    GQ_OP         [reduce using rule 81 (declarationList)]
+    EQ_OP         reduce using rule 80 (declarationList)
+    EQ_OP         [reduce using rule 81 (declarationList)]
+    NQ_OP         reduce using rule 80 (declarationList)
+    NQ_OP         [reduce using rule 81 (declarationList)]
+    FOR           reduce using rule 80 (declarationList)
+    FOR           [reduce using rule 81 (declarationList)]
+    RETURN        reduce using rule 80 (declarationList)
+    RETURN        [reduce using rule 81 (declarationList)]
+    INTEGER       reduce using rule 80 (declarationList)
+    INTEGER       [reduce using rule 81 (declarationList)]
+    FLOAT_NUMBER  reduce using rule 80 (declarationList)
+    FLOAT_NUMBER  [reduce using rule 81 (declarationList)]
+    STRING        reduce using rule 80 (declarationList)
+    STRING        [reduce using rule 81 (declarationList)]
+    BOOLEAN       reduce using rule 80 (declarationList)
+    BOOLEAN       [reduce using rule 81 (declarationList)]
+    SET           reduce using rule 80 (declarationList)
+    SET           [reduce using rule 81 (declarationList)]
+    ARRAY         reduce using rule 80 (declarationList)
+    ARRAY         [reduce using rule 81 (declarationList)]
+    MATRIZ        reduce using rule 80 (declarationList)
+    MATRIZ        [reduce using rule 81 (declarationList)]
+    VOID          reduce using rule 80 (declarationList)
+    VOID          [reduce using rule 81 (declarationList)]
+    STRUCT        reduce using rule 80 (declarationList)
+    STRUCT        [reduce using rule 81 (declarationList)]
+    ','           reduce using rule 80 (declarationList)
+    ','           [reduce using rule 81 (declarationList)]
+    '?'           reduce using rule 80 (declarationList)
+    '?'           [reduce using rule 81 (declarationList)]
+    ';'           reduce using rule 80 (declarationList)
+    ';'           [reduce using rule 81 (declarationList)]
+    '<'           reduce using rule 80 (declarationList)
+    '<'           [reduce using rule 81 (declarationList)]
+    '>'           reduce using rule 80 (declarationList)
+    '>'           [reduce using rule 81 (declarationList)]
+    '+'           reduce using rule 80 (declarationList)
+    '+'           [reduce using rule 81 (declarationList)]
+    '-'           reduce using rule 80 (declarationList)
+    '-'           [reduce using rule 81 (declarationList)]
+    '*'           reduce using rule 80 (declarationList)
+    '*'           [reduce using rule 81 (declarationList)]
+    '/'           reduce using rule 80 (declarationList)
+    '/'           [reduce using rule 81 (declarationList)]
+    '%'           reduce using rule 80 (declarationList)
+    '%'           [reduce using rule 81 (declarationList)]
+    $default      reduce using rule 80 (declarationList)
+
+
+State 150
+
+   66 functionDefinitionList: functionDefinitionList FUNCTION functionDeclaration compoundStatement BLOCK_END FUNCTION .
+
+    $default  reduce using rule 66 (functionDefinitionList)
+
+
+State 151
+
+   75 initializer: '{' initializerList ',' . '}'
+   77 initializerList: initializerList ',' . initializer
+
+    '{'  shift, and go to state 97
+    '}'  shift, and go to state 162
+
+    '}'       [reduce using rule 49 (multiplicativeExpression)]
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    conditionalExpression     go to state 98
+    OrExpression              go to state 44
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+    initializer               go to state 163
+
+
+State 152
+
+   74 initializer: '{' initializerList '}' .
+
+    $default  reduce using rule 74 (initializer)
+
+
+State 153
 
    13 argParam: typeCompouse '@' type . ID
 
-    ID  shift, and go to state 73
+    ID  shift, and go to state 164
 
 
-State 70
+State 154
 
-   11 argParamList: argParamList COMMA argParam .
+   11 argParamList: argParamList ',' argParam .
 
     $default  reduce using rule 11 (argParamList)
 
 
-State 71
+State 155
 
-   25 selectionStatement: IF '(' 'a' ')' statement .
-   27 statementList: statement . ';'
+   31 iterationStatement: WHILE '(' expression ')' statement .
+   60 statementList: statement . ';'
 
-    ';'  shift, and go to state 46
+    ';'  shift, and go to state 74
 
-    ';'       [reduce using rule 25 (selectionStatement)]
-    $default  reduce using rule 25 (selectionStatement)
-
-
-State 72
-
-   26 selectionStatement: IF '(' 't' ')' statement . ELSE statement
-   27 statementList: statement . ';'
-
-    ELSE  shift, and go to state 74
-    ';'   shift, and go to state 46
+    ';'       [reduce using rule 31 (iterationStatement)]
+    $default  reduce using rule 31 (iterationStatement)
 
 
-State 73
+State 156
+
+   32 iterationStatement: DO statement WHILE '(' expression . ')' SEMI
+   57 expression: expression . ',' conditionalExpression
+
+    ','  shift, and go to state 89
+    ')'  shift, and go to state 165
+
+
+State 157
+
+   58 selectionStatement: IF '(' expression ')' statement .
+   59                   | IF '(' expression ')' statement . ELSE statement
+   60 statementList: statement . ';'
+
+    ELSE  shift, and go to state 166
+    ';'   shift, and go to state 74
+
+    ';'       [reduce using rule 58 (selectionStatement)]
+    $default  reduce using rule 58 (selectionStatement)
+
+
+State 158
+
+   33 iterationStatement: FOR '(' expressionStatement expressionStatement ')' . statement
+
+    WHILE         shift, and go to state 35
+    DO            shift, and go to state 36
+    IF            shift, and go to state 37
+    FOR           shift, and go to state 38
+    RETURN        shift, and go to state 39
+    INTEGER       shift, and go to state 2
+    FLOAT_NUMBER  shift, and go to state 3
+    STRING        shift, and go to state 4
+    BOOLEAN       shift, and go to state 5
+    SET           shift, and go to state 6
+    ARRAY         shift, and go to state 7
+    MATRIZ        shift, and go to state 8
+    VOID          shift, and go to state 9
+    STRUCT        shift, and go to state 10
+    ';'           shift, and go to state 40
+
+    ';'       [reduce using rule 49 (multiplicativeExpression)]
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    type                      go to state 11
+    typeCompouse              go to state 12
+    statement                 go to state 167
+    jumpStatement             go to state 42
+    conditionalExpression     go to state 43
+    OrExpression              go to state 44
+    expressionStatement       go to state 45
+    iterationStatement        go to state 46
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+    expression                go to state 52
+    selectionStatement        go to state 53
+    statementList             go to state 54
+    compoundStatement         go to state 70
+    typeSpecifier             go to state 14
+    declarationList           go to state 56
+
+
+State 159
+
+   34 iterationStatement: FOR '(' expressionStatement expressionStatement expression . ')' statement
+   57 expression: expression . ',' conditionalExpression
+
+    ','  shift, and go to state 89
+    ')'  shift, and go to state 168
+
+
+State 160
+
+   26 conditionalExpression: OrExpression '?' expression ':' conditionalExpression .
+
+    $default  reduce using rule 26 (conditionalExpression)
+
+
+State 161
+
+   48 primaryExpression: '(' expression ')' .
+
+    $default  reduce using rule 48 (primaryExpression)
+
+
+State 162
+
+   75 initializer: '{' initializerList ',' '}' .
+
+    $default  reduce using rule 75 (initializer)
+
+
+State 163
+
+   77 initializerList: initializerList ',' initializer .
+
+    $default  reduce using rule 77 (initializerList)
+
+
+State 164
 
    13 argParam: typeCompouse '@' type ID .
 
     $default  reduce using rule 13 (argParam)
 
 
-State 74
+State 165
 
-   26 selectionStatement: IF '(' 't' ')' statement ELSE . statement
+   32 iterationStatement: DO statement WHILE '(' expression ')' . SEMI
 
-    IF        shift, and go to state 29
-    CONTINUE  shift, and go to state 30
-    BREAK     shift, and go to state 31
-    RETURN    shift, and go to state 32
-    ';'       shift, and go to state 2
-
-    statement           go to state 75
-    jumpStatement       go to state 34
-    selectionStatement  go to state 35
-    statementList       go to state 36
-    compoundStatement   go to state 48
-    declarationList     go to state 38
+    SEMI  shift, and go to state 169
 
 
-State 75
+State 166
 
-   26 selectionStatement: IF '(' 't' ')' statement ELSE statement .
-   27 statementList: statement . ';'
+   59 selectionStatement: IF '(' expression ')' statement ELSE . statement
 
-    ';'  shift, and go to state 46
+    WHILE         shift, and go to state 35
+    DO            shift, and go to state 36
+    IF            shift, and go to state 37
+    FOR           shift, and go to state 38
+    RETURN        shift, and go to state 39
+    INTEGER       shift, and go to state 2
+    FLOAT_NUMBER  shift, and go to state 3
+    STRING        shift, and go to state 4
+    BOOLEAN       shift, and go to state 5
+    SET           shift, and go to state 6
+    ARRAY         shift, and go to state 7
+    MATRIZ        shift, and go to state 8
+    VOID          shift, and go to state 9
+    STRUCT        shift, and go to state 10
+    ';'           shift, and go to state 40
 
-    ';'       [reduce using rule 26 (selectionStatement)]
-    $default  reduce using rule 26 (selectionStatement)
+    ';'       [reduce using rule 49 (multiplicativeExpression)]
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    type                      go to state 11
+    typeCompouse              go to state 12
+    statement                 go to state 170
+    jumpStatement             go to state 42
+    conditionalExpression     go to state 43
+    OrExpression              go to state 44
+    expressionStatement       go to state 45
+    iterationStatement        go to state 46
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+    expression                go to state 52
+    selectionStatement        go to state 53
+    statementList             go to state 54
+    compoundStatement         go to state 70
+    typeSpecifier             go to state 14
+    declarationList           go to state 56
+
+
+State 167
+
+   33 iterationStatement: FOR '(' expressionStatement expressionStatement ')' statement .
+   60 statementList: statement . ';'
+
+    ';'  shift, and go to state 74
+
+    ';'       [reduce using rule 33 (iterationStatement)]
+    $default  reduce using rule 33 (iterationStatement)
+
+
+State 168
+
+   34 iterationStatement: FOR '(' expressionStatement expressionStatement expression ')' . statement
+
+    WHILE         shift, and go to state 35
+    DO            shift, and go to state 36
+    IF            shift, and go to state 37
+    FOR           shift, and go to state 38
+    RETURN        shift, and go to state 39
+    INTEGER       shift, and go to state 2
+    FLOAT_NUMBER  shift, and go to state 3
+    STRING        shift, and go to state 4
+    BOOLEAN       shift, and go to state 5
+    SET           shift, and go to state 6
+    ARRAY         shift, and go to state 7
+    MATRIZ        shift, and go to state 8
+    VOID          shift, and go to state 9
+    STRUCT        shift, and go to state 10
+    ';'           shift, and go to state 40
+
+    ';'       [reduce using rule 49 (multiplicativeExpression)]
+    $default  reduce using rule 49 (multiplicativeExpression)
+
+    type                      go to state 11
+    typeCompouse              go to state 12
+    statement                 go to state 171
+    jumpStatement             go to state 42
+    conditionalExpression     go to state 43
+    OrExpression              go to state 44
+    expressionStatement       go to state 45
+    iterationStatement        go to state 46
+    AndExpression             go to state 47
+    relationExpression        go to state 48
+    additiveExpression        go to state 49
+    multiplicativeExpression  go to state 50
+    EqExpression              go to state 51
+    expression                go to state 52
+    selectionStatement        go to state 53
+    statementList             go to state 54
+    compoundStatement         go to state 70
+    typeSpecifier             go to state 14
+    declarationList           go to state 56
+
+
+State 169
+
+   32 iterationStatement: DO statement WHILE '(' expression ')' SEMI .
+
+    $default  reduce using rule 32 (iterationStatement)
+
+
+State 170
+
+   59 selectionStatement: IF '(' expression ')' statement ELSE statement .
+   60 statementList: statement . ';'
+
+    ';'  shift, and go to state 74
+
+    ';'       [reduce using rule 59 (selectionStatement)]
+    $default  reduce using rule 59 (selectionStatement)
+
+
+State 171
+
+   34 iterationStatement: FOR '(' expressionStatement expressionStatement expression ')' statement .
+   60 statementList: statement . ';'
+
+    ';'  shift, and go to state 74
+
+    ';'       [reduce using rule 34 (iterationStatement)]
+    $default  reduce using rule 34 (iterationStatement)

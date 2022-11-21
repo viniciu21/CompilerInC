@@ -16,12 +16,15 @@ extern char * yytext;
 
 %token <sValue> ID
 %token WHILE  BLOCK_END DO IF 
-%token ELSE SEMI  
-%token COMMA CONSTANT 
+%token SEMI ELSE 
+%token CONSTANT 
 %token OR_OP LQ_OP GQ_OP EQ_OP NQ_OP
 %token STRING_LITERAL 
 %token SWITCH DEFAULT CASE FOR CONTINUE BREAK RETURN FUNCTION
 %token INTEGER FLOAT_NUMBER STRING BOOLEAN SET ARRAY MATRIZ VOID STRUCT
+
+%nonassoc LOWER_THAN_ELSE
+%nonassoc ELSE
 
 %start prog
 
@@ -41,7 +44,7 @@ typeCompouse  : STRUCT '@' type 										{}
 			  ;
 
 argParamList : argParam							  				   		{}	
-			 | argParamList COMMA argParam 			   				   	{}
+			 | argParamList ',' argParam 			   				   	{}
 
 argParam : type ID 														{}
 		 | typeCompouse '@' type ID										{}
@@ -53,19 +56,84 @@ functionDeclaration : 	type ID '(' argParamList ')' {}
 					|	typeCompouse ID '(' ')' {}
 					;		
 
-statement :  compoundStatement
-		  |	selectionStatement;
-		  | jumpStatement;
+statement : selectionStatement
+		  | jumpStatement
+		  | expressionStatement 
+		  | iterationStatement
+		  | compoundStatement;
 
 jumpStatement
-	: CONTINUE 
-	| BREAK 
-	| RETURN 
+	: RETURN 
 	| RETURN expression 
 	;
 
+conditionalExpression: OrExpression
+	| OrExpression '?' expression ':' conditionalExpression {}
+	; 
+
+OrExpression: AndExpression
+	| OrExpression OR_OP AndExpression
+	;
+
+expressionStatement
+	: ';'
+	| expression ';'
+	;
+
+iterationStatement
+	: WHILE '(' expression ')' statement
+	| DO statement WHILE '(' expression ')' SEMI
+	| FOR '(' expressionStatement expressionStatement ')' statement
+	| FOR '(' expressionStatement expressionStatement expression ')' statement
+	;
+
+AndExpression: EqExpression 
+	| AndExpression EQ_OP EqExpression
+	;
+
+relationExpression
+	: additiveExpression
+	| relationExpression '<' additiveExpression
+	| relationExpression '>' additiveExpression
+	| relationExpression GQ_OP additiveExpression
+	| relationExpression LQ_OP additiveExpression
+	;
+
+additiveExpression 
+	: multiplicativeExpression
+	| additiveExpression '+' multiplicativeExpression
+	| additiveExpression '-' multiplicativeExpression
+	;
+
+primaryExpression
+	: ID
+	| CONSTANT
+	| STRING_LITERAL
+	| '(' expression ')'
+	;
+
+
+multiplicativeExpression
+	: /* empty */
+	| multiplicativeExpression '*' primaryExpression
+	| multiplicativeExpression '/' primaryExpression
+	| multiplicativeExpression '%' primaryExpression
+	;
+
+EqExpression
+	: relationExpression
+	| EqExpression EQ_OP relationExpression
+	| EqExpression NQ_OP relationExpression
+	;
+
+
+expression
+	: conditionalExpression
+	| expression ',' conditionalExpression
+	;
+
 selectionStatement
-	: IF '(' expression ')' statement
+	: IF '(' expression ')' statement %prec LOWER_THAN_ELSE
 	| IF '(' expression ')' statement ELSE statement
 	;
 
@@ -77,19 +145,46 @@ compoundStatement 	:  	statementList  									{}
 					|  	declarationList statementList 					{}
 					;
 
-functionDefinition 	: FUNCTION functionDeclaration compoundStatement BLOCK_END FUNCTION {}	//VOLTAR AQUI 2
-					;
-
-functionDefinitionList	: functionDefinition 							{}
-						| functionDefinitionList functionDefinition  	{}
+functionDefinitionList	: FUNCTION functionDeclaration compoundStatement BLOCK_END FUNCTION 							{}
+						| functionDefinitionList FUNCTION functionDeclaration compoundStatement BLOCK_END FUNCTION  	{}
 						;
 
-declarationList: ';';
+typeSpecifier : type         											{}
+			  | typeCompouse 											{}
+			  ;
+
+Ids : ID | Ids ',' ID 
+
+initDeclarator : Ids
+			   | Ids '=' initializer
+				;
+
+initializer : conditionalExpression
+	| '{' initializerList '}'
+	| '{' initializerList ',' '}'
+	;
+
+initializerList
+	: initializer
+	| initializerList ',' initializer
+	;
+
+initDeclaratorList
+	: initDeclarator
+	| initDeclaratorList ',' initDeclarator
+	;
+
+declarationList : typeSpecifier initDeclaratorList ';' 			   	   {}
+				| declarationList typeSpecifier initDeclaratorList ';'  {} 
+				;
 
 alt : functionDefinitionList {}
 	| declarationList 		{} 
-	; //VOLTAR AQUI 
-alts : alt | alts alt;
+	; 
+
+alts : alt 
+	 | alts alt;
+
 prog : alts ;
 
 %% /* Fim da segunda seção */
