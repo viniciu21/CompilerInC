@@ -1,3 +1,1 @@
-function int teste()
-
-end function
+int teste()

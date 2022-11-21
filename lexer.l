@@ -1,59 +1,132 @@
+D			[0-9]
+L			[a-zA-Z_]
+H			[a-fA-F0-9]
+E			[Ee][+-]?{D}+
+FS			(f|F|l|L)
+IS			(u|U|l|L)*
+
 %{
-  #include <stdio.h>  
+  #include <stdio.h>
   #include "y.tab.h"
+
+  void count();
   
-  extern int yyerror (char *msg); 
 %}
 
 %%
 
-
-"do"      				    {return DO;}
-"int"                 {return INTEGER;}
-"float"               {return FLOAT_NUMBER;}
-"string"              {return STRING;}
-"bool"                {return BOOLEAN;}
-"set"                 {return SET;}
-"array"               {return ARRAY;}
-"matriz"              {return MATRIZ;}
-"void"                {return VOID;}
-"struct"              {return STRUCT;}
-";"      				      {return ";";}
-"="					          {return "=";}
-","                   {return ",";}
-"@"                   {return "@";}
-"("			              { return "("; }
-")"			              { return ")"; }
-"["			              { return "]"; }
-"]"			              { return "]"; }
-"-"			              { return "-"; }
-"+"			              { return "+"; }
-"*"			              { return "*"; }
-"/"			              { return "/"; }
-"<"		              	{ return "<"; }
-">"			              { return ">"; }
-"?"			              { return "?"; }
-"&&"                  { return AND_OP;}
-"||"                  { return OR_OP;}
-"<="			            { return LQ_OP; }
-">="			            { return GQ_OP; }
-"=="			            { return EQ_OP ; }
-"!="			            { return NQ_OP; }
+"int"                 { count(); return (INTEGER); }
+"float"               { count(); return (FLOAT_NUMBER); }
+"string"              { count(); return (STRING); }
+"bool"                { count(); return (BOOLEAN); }
+"set"                 { count(); return (SET); }
+"array"               { count(); return (ARRAY); }
+"matriz"              { count(); return (MATRIZ); }
+"void"                { count(); return (VOID); }
+"struct"              { count(); return (STRUCT); }
+";"      				      { count(); return (";"); }
+"="					          { count(); return ("="); }
+","                   { count(); return (","); }
+"@"                   { count(); return ("@"); }
+"("			              { count(); return ("("); }
+")"			              { count(); return (")"); }
+("["|"<:")		        { count(); return ('['); }
+("]"|":>")		        { count(); return (']'); }
+("{"|"<%")		        { count(); return ('{'); }
+("}"|"%>")		        { count(); return ('}'); }
+"-"			              { count(); return ("-"); }
+"+"			              { count(); return ("+"); }
+"*"			              { count(); return ("*"); }
+"/"			              { count(); return ("/"); }
+"<"		              	{ count(); return ("<"); }
+">"			              { count(); return (">"); }
+"?"			              { count(); return ("?"); }
+"+="			            { count(); return (ADD_ASSIGN); }
+"-="			            { count(); return (SUB_ASSIGN); }
+"*="			            { count(); return (MUL_ASSIGN); }
+"/="			            { count(); return (DIV_ASSIGN); }
+"%="			            { count(); return (MOD_ASSIGN); }
+"&&"                  { count(); return (AND_OP); }
+"||"                  { count(); return (OR_OP); }
+"<="			            { count(); return (LQ_OP); }
+">="			            { count(); return (GQ_OP); }
+"=="			            { count(); return (EQ_OP) ; }
+"!="			            { count(); return (NQ_OP); }
 [ \n\t\r]+            {}
-[0-9]+           	    { return NUMBER;}
-(\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\/)|(\/\/.*) {print("Comment: %s.\n", yytext);}
-"for"                 {return FOR;}
-"while"      	        {return WHILE;}
-"end"      		        {return BLOCK_END;}
-"if"                  {return IF;}
-"funtion"             {return FUNCTION;}
-"else"      	        {return ELSE;}
-L?\"(\\.|[^\\"])*\"	  {return STRING_LITERAL; }
-([a-zA-Z]+(?:_[a-zA-Z]+)*)	{return ID;}
-.                     {yyerror("invalid character");}
+"/*"			            { comment(); }
+"for"                 { count(); return FOR; }
+"while"      	        { count(); return WHILE; }
+"if"                  { count();return IF; }
+"funtion"             { count();return FUNCTION; }
+"else"      	        { count();return ELSE; }
+{L}({L}|{D})*		      { count(); return(check_type()); }
+L?\"(\\.|[^\\"])*\"	  { count(); return STRING_LITERAL; }
+0[xX]{H}+{IS}?		      { count(); return(ID); }
+0{D}+{IS}?		          { count(); return(ID); }
+{D}+{IS}?		            { count(); return(ID); }
+L?'(\\.|[^\\'])+'	      { count(); return(ID); }
+{D}+{E}{FS}?		        { count(); return(ID); }
+{D}*"."{D}+({E})?{FS}?	{ count(); return(ID); }
+{D}+"."{D}*({E})?{FS}?	{ count(); return(ID); }
+.                        {}
 
 %%
+yywrap()
+{
+	return(1);
+}
 
-#ifndef yywrap
-   int yywrap (void) {return 1;}
-#endif
+comment()
+{
+	char c, c1;
+
+loop:
+	while ((c = input()) != '*' && c != 0)
+		putchar(c);
+
+	if ((c1 = input()) != '/' && c != 0)
+	{
+		unput(c1);
+		goto loop;
+	}
+
+	if (c != 0)
+		putchar(c1);
+}
+
+
+int column = 0;
+
+void count()
+{
+	int i;
+
+	for (i = 0; yytext[i] != '\0'; i++)
+		if (yytext[i] == '\n')
+			column = 0;
+		else if (yytext[i] == '\t')
+			column += 8 - (column % 8);
+		else
+			column++;
+
+	ECHO;
+}
+
+
+int check_type()
+{
+/*
+* pseudo code --- this is what it should check
+*
+*	if (yytext == type_name)
+*		return(TYPE_NAME);
+*
+*	return(IDENTIFIER);
+*/
+
+/*
+*	it actually will only return IDENTIFIER
+*/
+
+	return(ID);
+}
