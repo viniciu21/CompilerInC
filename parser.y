@@ -61,12 +61,12 @@ jumpStatement
 	: CONTINUE 
 	| BREAK 
 	| RETURN 
-	| RETURN 'd' 
+	| RETURN expression 
 	;
 
 selectionStatement
-	: IF '(' 'a' ')' statement
-	| IF '(' 't' ')' statement ELSE statement
+	: IF '(' expression ')' statement
+	| IF '(' expression ')' statement ELSE statement
 	;
 
 statementList   : statement ';'

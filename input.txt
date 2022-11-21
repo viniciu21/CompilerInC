@@ -1,5 +1,5 @@
-functionDefinitionList	: functionDefinitionList 						{}
-						| functionDefinition functionDefinitionList 	{}
+functionDefinitionList	: functionDefinition 						{}
+						| functionDefinitionList functionDefinition  	{}
 						;
 
 
