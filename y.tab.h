@@ -93,9 +93,9 @@ extern int yydebug;
     VOID = 294,                    /* VOID  */
     STRUCT = 295,                  /* STRUCT  */
     ASSIGN = 296,                  /* ASSIGN  */
-    MIN = 297,                     /* MIN  */
-    PLUS = 298,                    /* PLUS  */
-    MULT = 299,                    /* MULT  */
+    SUB = 297,                     /* SUB  */
+    ADD = 298,                     /* ADD  */
+    MUL = 299,                     /* MUL  */
     DIV = 300,                     /* DIV  */
     LT = 301,                      /* LT  */
     GT = 302,                      /* GT  */
@@ -157,9 +157,9 @@ extern int yydebug;
 #define VOID 294
 #define STRUCT 295
 #define ASSIGN 296
-#define MIN 297
-#define PLUS 298
-#define MULT 299
+#define SUB 297
+#define ADD 298
+#define MUL 299
 #define DIV 300
 #define LT 301
 #define GT 302
