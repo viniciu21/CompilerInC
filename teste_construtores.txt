@@ -8,39 +8,55 @@ function int main()
 	float real;
     string palavra;
 	
-	// expressions
+	//=================================================================
 
-	int x = 0
-	x += 5
-    x -= 2
-    x *= 4
-    x /= 3
-    x %= 2
+    // additive_expression
+    int num = 4 + 2;
+    num = 5 - 3;
 
-    bool false = x == 3
-    bool true = x != 3
-    false = x <= 1
-    true = x >= 1
-    false = x > 4
-    true = x < 4
+    // multiplicative_expression
+    num = 5 * 2;
+    num = 6 / 3;
+    num = 4 % 3;
+
+    // assignment_expression
+	int x = 0;
+	x += 5;
+    x -= 2;
+    x *= 4;
+    x /= 3;
+    x %= 2;
+
+    // equality_expression
+    bool false = x == 3;
+    bool true = x != 3;
+
+    // relational_expression
+    false = x <= 1;
+    true = x >= 1;
+    false = x > 4;
+    true = x < 4;
+
+    // conditional_expression
+    bool variavel_booleana = (x == 2) ? (true == false) : x > 0;
     
     // logical_or_expression
-    bool verdadeiro = true || false
+    bool verdadeiro = true || false;
 
     // logical_and_expression
-    bool falso = true && false
-
-    // and_expression
-    bool variavel_booleana = (x != 2) & (verdadeiro == falso)
-
-    // exclusive_or_expression
-    variavel_booleana = (x != 2) ^ (verdadeiro == falso)
+    bool falso = true && false;
 
     // inclusive_or_expression
-    variavel_booleana = (x != 2) | (verdadeiro == falso)
+    variavel_booleana = (x != 2) | (verdadeiro == falso);
+
+    // exclusive_or_expression
+    variavel_booleana = (x != 2) ^ (verdadeiro == falso);
+
+    // and_expression
+    variavel_booleana = (x != 2) & (verdadeiro == falso);
 
 
-    // others
+    //=================================================================
 
     /*
 
