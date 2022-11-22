@@ -48,8 +48,39 @@ Rodar o analisador no mergeSort de exemplo
 $ ./parser < mergeSort.txt
 ```
 
-## Conclusão
+## Resultados
 
 Os arquivos gerados automaticamente pelos comandos são o y.tab.c e o seu header y.tab.h, e também o lex.yy.c
 
-No arquivo teste_construtores.txt foram implementados casos de teste para todos os construtores sintaticos
+Para exemplificar o funcionamento da nossa linguagem e dos nossos analisadores:
+
+Condicional na linguagem Python
+
+```
+if x < y:
+    x = y
+```
+
+Condicional na nossa linguagem
+
+```
+IF (x < y) 
+    x = y;
+END IF
+```
+
+Depois de ser analisado
+
+```
+IF LPAR ID LT ID RPAR
+    ID ASSIGN ID SEMI
+END IF
+```
+
+Como estrutura sintatica esse exemplo é visto como
+
+```
+selection_statement conditional_expression
+    assignment_expression
+END IF
+```
