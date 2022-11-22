@@ -1,0 +1,62 @@
+function int main()
+
+	// declarations
+	
+	void nada;
+	bool valor;
+	int numero;
+	float real;
+    string palavra;
+	
+	// expressions
+
+	int x = 0
+	x += 5
+    x -= 2
+    x *= 4
+    x /= 3
+    x %= 2
+
+    bool false = x == 3
+    bool true = x != 3
+    false = x <= 1
+    true = x >= 1
+    false = x > 4
+    true = x < 4
+    
+    // logical_or_expression
+    bool verdadeiro = true || false
+
+    // logical_and_expression
+    bool falso = true && false
+
+    // and_expression
+    bool variavel_booleana = (x != 2) & (verdadeiro == falso)
+
+    // exclusive_or_expression
+    variavel_booleana = (x != 2) ^ (verdadeiro == falso)
+
+    // inclusive_or_expression
+    variavel_booleana = (x != 2) | (verdadeiro == falso)
+
+
+    // others
+
+    /*
+
+    Comentarios
+
+    */
+	
+	print("Digite um array de numeros");
+	
+    for (int i = 0; i < num; i++);
+        myarray[i] = read();
+    END FOR
+	
+	int i = 1
+	while (i <= mid)
+        i++;
+    END WHILE
+	
+END FUNCTION

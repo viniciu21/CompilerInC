@@ -56,9 +56,10 @@ IS			(u|U|l|L)*
 "/*"			            { comment(); }
 "for"                 { count(); return FOR; }
 "while"      	        { count(); return WHILE; }
-"if"                  { count();return IF; }
-"funtion"             { count();return FUNCTION; }
-"else"      	        { count();return ELSE; }
+"if"                  { count(); return IF; }
+"funtion"             { count(); return FUNCTION; }
+"else"      	        { count(); return ELSE; }
+[0-9]+           	    { count(); return NUMBER;}
 {L}({L}|{D})*		      { count(); return(check_type()); }
 L?\"(\\.|[^\\"])*\"	  { count(); return STRING_LITERAL; }
 0[xX]{H}+{IS}?		      { count(); return(ID); }

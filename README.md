@@ -18,7 +18,7 @@ Vinicius Oliveira Da Silva
 
 ## Introdução
 
-Passando pelo analisador léxico da nossa linguagem o código ira gerar uma saida com os devidos tokens e lexemas
+Passando pelo analisador léxico da nossa linguagem o código ira gerar uma saida com os devidos tokens e lexemas, que depois vai ser validada pelo analisador sintatico com o intuito de procurar erros em construções sintaticas.
 
 ## Execução
 
@@ -51,3 +51,5 @@ $ ./parser < mergeSort.txt
 ## Conclusão
 
 Os arquivos gerados automaticamente pelos comandos são o y.tab.c e o seu header y.tab.h, e também o lex.yy.c
+
+No arquivo teste_construtores.txt foram implementados casos de teste para todos os construtores sintaticos
