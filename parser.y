@@ -6,6 +6,7 @@ int yyerror(char *s);
 extern int yylineno;
 extern char * yytext;
 
+
 %}
 
 %union {
@@ -16,14 +17,15 @@ extern char * yytext;
 
 %token <sValue> ID
 %token <iValue> NUMBER
-%token WHILE  BLOCK_END DO IF 
-%token SEMI ELSE COMMA AT LPAR RPAR LBRA RBRA QUEST
-%token CONSTANT 
-%token OR_OP LQ_OP GQ_OP EQ_OP NQ_OP AND_OP
+%token WHILE IF 
+%token ELSE 
+%token CONSTANT TYPE_NAME
+%token OR_OP LQ_OP GQ_OP EQ_OP NQ_OP AND_OP INC_OP DEC_OP MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN SUB_ASSIGN
 %token STRING_LITERAL 
 %token SWITCH DEFAULT CASE FOR CONTINUE BREAK RETURN FUNCTION
 %token INTEGER FLOAT_NUMBER STRING BOOLEAN SET ARRAY MATRIZ VOID STRUCT
 %token ASSIGN MIN PLUS MULT DIV LT GT
+%token COMMA AT LPAR RPAR LBRAK RBRAK LBRAC RBRAC QUEST
 
 %nonassoc LOWER_THAN_ELSE
 %nonassoc ELSE
@@ -34,167 +36,335 @@ extern char * yytext;
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
 
-type : INTEGER  														{}
-	 | FLOAT_NUMBER 													{}
-	 | STRING 															{}
-	 | BOOLEAN															{}
-	 | ARRAY 															{}
-	 | VOID																{}
-	 ;
-
-typeCompouse  : STRUCT '@' type 										{}
-			  | MATRIZ '@' type 										{}
-			  | SET '@' type 											{}									
-			  ;
-
-argParamList : argParam							  				   		{}	
-			 | argParamList ',' argParam 			   				   	{}
-
-argParam : type ID 														{}
-		 | typeCompouse '@' type ID										{}
-		 ;
-
-functionDeclaration : 	type ID '(' argParamList ')' {}
-					|	type ID '(' ')' {}
-					|	typeCompouse ID '(' argParamList ')' {}
-					|	typeCompouse ID '(' ')' {}
-					;		
-
-statement : selectionStatement
-		  | jumpStatement
-		  | expressionStatement 
-		  | iterationStatement
-		  | compoundStatement;
-
-jumpStatement
-	: RETURN 
-	| RETURN expression 
-	;
-
-conditionalExpression: OrExpression
-	| OrExpression '?' expression ':' conditionalExpression {}
-	; 
-
-OrExpression: AndExpression
-	| OrExpression OR_OP AndExpression
-	;
-
-expressionStatement
-	: ';'
-	| expression ';'
-	;
-
-iterationStatement
-	: WHILE '(' expression ')' statement
-	| DO statement WHILE '(' expression ')' SEMI
-	| FOR '(' expressionStatement expressionStatement ')' statement
-	| FOR '(' expressionStatement expressionStatement expression ')' statement
-	;
-
-AndExpression: EqExpression 
-	| AndExpression EQ_OP EqExpression
-	;
-
-relationExpression
-	: additiveExpression
-	| relationExpression '<' additiveExpression
-	| relationExpression '>' additiveExpression
-	| relationExpression GQ_OP additiveExpression
-	| relationExpression LQ_OP additiveExpression
-	;
-
-additiveExpression 
-	: multiplicativeExpression
-	| additiveExpression '+' multiplicativeExpression
-	| additiveExpression '-' multiplicativeExpression
-	;
-
-primaryExpression
+primary_expression
 	: ID
 	| CONSTANT
 	| STRING_LITERAL
 	| '(' expression ')'
 	;
 
-
-multiplicativeExpression
-	: /* empty */
-	| multiplicativeExpression '*' primaryExpression
-	| multiplicativeExpression '/' primaryExpression
-	| multiplicativeExpression '%' primaryExpression
+postfix_expression
+	: primary_expression
+	| postfix_expression '[' expression ']'
+	| postfix_expression '(' ')'
+	| postfix_expression '(' argument_expression_list ')'
+	| postfix_expression '.' ID
+	| postfix_expression INC_OP
+	| postfix_expression DEC_OP
 	;
 
-EqExpression
-	: relationExpression
-	| EqExpression EQ_OP relationExpression
-	| EqExpression NQ_OP relationExpression
+argument_expression_list
+	: assignment_expression
+	| argument_expression_list ',' assignment_expression
 	;
 
+unary_expression
+	: postfix_expression
+	| INC_OP unary_expression
+	| DEC_OP unary_expression
+	| unary_operator 
+	;
+
+unary_operator
+	: '*'
+	| '+'
+	| '-'
+	| '!'
+	;
+
+/*cast_expression
+	: unary_expression
+	| '(' type_name ')' cast_expression
+	;*/
+
+multiplicative_expression
+	: unary_expression
+	| multiplicative_expression '*' unary_expression
+	| multiplicative_expression '/' unary_expression
+	| multiplicative_expression '%' unary_expression
+	;
+
+additive_expression
+	: multiplicative_expression
+	| additive_expression '+' multiplicative_expression
+	| additive_expression '-' multiplicative_expression
+	;
+
+/*shift_expression
+	: additive_expression
+	| shift_expression LEFT_OP additive_expression
+	| shift_expression RIGHT_OP additive_expression
+	;*/
+
+relational_expression
+	: additive_expression
+	| relational_expression '<' additive_expression
+	| relational_expression '>' additive_expression
+	| relational_expression LQ_OP additive_expression
+	| relational_expression GQ_OP additive_expression
+	;
+
+equality_expression
+	: relational_expression
+	| equality_expression EQ_OP relational_expression
+	| equality_expression NQ_OP relational_expression
+	;
+
+and_expression
+	: equality_expression
+	| and_expression '&' equality_expression
+	;
+
+exclusive_or_expression
+	: and_expression
+	| exclusive_or_expression '^' and_expression
+	;
+
+inclusive_or_expression
+	: exclusive_or_expression
+	| inclusive_or_expression '|' exclusive_or_expression
+	;
+
+logical_and_expression
+	: inclusive_or_expression
+	| logical_and_expression AND_OP inclusive_or_expression
+	;
+
+logical_or_expression
+	: logical_and_expression
+	| logical_or_expression OR_OP logical_and_expression
+	;
+
+conditional_expression
+	: logical_or_expression
+	| logical_or_expression '?' expression ':' conditional_expression
+	;
+
+assignment_expression
+	: conditional_expression
+	| unary_expression assignment_operator assignment_expression
+	;
+
+assignment_operator
+	: '=' 
+	| MUL_ASSIGN
+	| DIV_ASSIGN
+	| MOD_ASSIGN
+	| ADD_ASSIGN
+	| SUB_ASSIGN
+	;
 
 expression
-	: conditionalExpression
-	| expression ',' conditionalExpression
+	: assignment_expression
+	| expression ',' assignment_expression
 	;
 
-selectionStatement
-	: IF '(' expression ')' statement %prec LOWER_THAN_ELSE
+constant_expression
+	: conditional_expression
+	;
+
+declaration
+	: declaration_specifiers ID ';'
+	| declaration_specifiers init_declarator_list ';'
+	;
+
+declaration_specifiers
+	: type_specifier {printf("teste\n");}
+	| type_specifier declaration_specifiers
+	;
+
+init_declarator_list
+	: initializer
+	| init_declarator_list ',' initializer
+	;
+
+/*
+init_declarator
+	: declarator
+	| declarator '=' initializer
+	; */	
+
+type_specifier
+	: VOID
+	| INTEGER {printf("inteiro\n");}
+	| FLOAT_NUMBER
+	| TYPE_NAME
+	;
+
+specific_type
+	: STRUCT
+	| SET
+	| MATRIZ
+	;
+
+/*struct_or_union_specifier
+	: struct_or_union ID '{' struct_declaration_list '}'
+	| struct_or_union '{' struct_declaration_list '}'
+	| struct_or_union ID
+	;
+
+struct_or_union
+	: STRUCT
+	| UNION
+	;
+
+struct_declaration_list
+	: struct_declaration
+	| struct_declaration_list struct_declaration
+	;
+
+struct_declaration
+	: specifier_qualifier_list struct_declarator_list ';'
+	;
+
+specifier_qualifier_list
+	: type_specifier specifier_qualifier_list
+	| type_specifier
+	;
+
+struct_declarator_list
+	: ':' constant_expression
+	| struct_declarator_list ',' ':' constant_expression
+	; */
+
+/*struct_declarator
+	: declarator
+	| ':' constant_expression
+	| declarator ':' constant_expression
+	; */
+
+/*declarator
+	: pointer direct_declarator
+	| direct_declarator
+	;*/
+
+direct_declarator
+	: ID {printf("TESTE\n");}
+	| '(' direct_declarator ')'{printf("ACHEI\n");}
+	| direct_declarator '[' constant_expression ']' {printf("ACHEI\n");}
+	| direct_declarator '[' ']' {printf("ACHEI\n");}
+	| direct_declarator '(' parameter_list ')' {printf("ACHEI\n");}
+	| direct_declarator '(' identifier_list ')' {printf("ACHEI\n");}
+	| direct_declarator '(' ')' {printf("ACHEI\n");}
+	;
+
+/*pointer
+	: '*'
+	| '*' pointer
+	;*/
+
+parameter_list
+	: parameter_declaration
+	| parameter_list ',' parameter_declaration
+	;
+
+parameter_declaration
+	: declaration_specifiers direct_declarator
+	| declaration_specifiers direct_abstract_declarator
+	| declaration_specifiers
+	;
+
+identifier_list
+	: ID
+	| identifier_list ',' ID
+	;
+
+/*type_name
+	: specifier_qualifier_list
+	| specifier_qualifier_list abstract_declarator
+	; */
+
+/*abstract_declarator
+	: pointer
+	| direct_abstract_declarator
+	| pointer direct_abstract_declarator
+	; */
+
+direct_abstract_declarator
+	: '(' direct_abstract_declarator ')'
+	| '[' ']'
+	| '[' constant_expression ']'
+	| direct_abstract_declarator '[' ']'
+	| direct_abstract_declarator '[' constant_expression ']'
+	| '(' ')'
+	| '(' parameter_list ')'
+	| direct_abstract_declarator '(' ')'
+	| direct_abstract_declarator '(' parameter_list ')'
+	;
+
+initializer
+	: assignment_expression
+	| '{' initializer_list '}'
+	| '{' initializer_list ',' '}'
+	;
+
+initializer_list
+	: initializer
+	| initializer_list ',' initializer
+	;
+
+statement
+	: compound_statement
+	| expression_statement
+	| selection_statement  
+	| iteration_statement
+	| jump_statement
+	;
+
+compound_statement
+	: '{' '}'
+	| '{' statement_list '}'
+	| '{' declaration_list '}'
+	| '{' declaration_list statement_list '}'
+	;
+
+declaration_list
+	: declaration
+	| declaration_list declaration
+	;
+
+statement_list
+	: statement
+	| statement_list statement
+	;
+
+expression_statement
+	: ';'
+	| expression ';'
+	;
+
+selection_statement
+	: IF '(' expression ')' statement 
 	| IF '(' expression ')' statement ELSE statement
 	;
 
-statementList   : statement ';'
-				| statementList statement ';' ;
+iteration_statement
+	: WHILE '(' expression ')' statement
+	| FOR '(' expression_statement expression_statement ')' statement
+	| FOR '(' expression_statement expression_statement expression ')' statement
+	;
 
-compoundStatement 	:  	statementList  									{}
-					|  	declarationList  								{}
-					|  	declarationList statementList 					{}
+jump_statement
+	: RETURN ';'
+	| RETURN expression ';'
+	;
+
+prog: external_declaration {printf("external_declaration");}
+	| prog external_declaration {printf("external_declaration");}
+	;
+
+function_definition : type_specifier direct_declarator compound_statement {printf("test");}
+					| specific_type '@' type_specifier direct_declarator compound_statement {printf("funcao tipo especifico \n");}
 					;
 
-functionDefinitionList	: FUNCTION functionDeclaration compoundStatement BLOCK_END FUNCTION 							{}
-						| functionDefinitionList FUNCTION functionDeclaration compoundStatement BLOCK_END FUNCTION  	{}
-						;
-
-typeSpecifier : type         											{}
-			  | typeCompouse 											{}
-			  ;
-
-Ids : ID | Ids ',' ID 
-
-initDeclarator : Ids
-			   | Ids '=' initializer
-				;
-
-initializer : conditionalExpression
-	| '{' initializerList '}'
-	| '{' initializerList ',' '}'
+external_declaration
+	: function_definition {printf("função\n");}
+	| declaration {printf("declaração \n");}
 	;
-
-initializerList
-	: initializer
-	| initializerList ',' initializer
-	;
-
-initDeclaratorList
-	: initDeclarator
-	| initDeclaratorList ',' initDeclarator
-	;
-
-declarationList : typeSpecifier initDeclaratorList ';' 			   	   {}
-				| declarationList typeSpecifier initDeclaratorList ';'  {} 
-				;
-
-alt : functionDefinitionList {}
-	| declarationList 		{} 
-	; 
-
-alts : alt 
-	 | alts alt;
-
-prog : alts ;
 
 %% /* Fim da segunda seção */
-
 int main (void) {
-	return yyparse();
+	return yyparse ( );
 }
 
 int yyerror (char *msg) {
