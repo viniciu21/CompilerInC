@@ -146,7 +146,7 @@ assignment_expression
 	;
 
 assignment_operator
-	: '=' 
+	: ASSIGN
 	| MUL_ASSIGN
 	| DIV_ASSIGN
 	| MOD_ASSIGN
@@ -156,7 +156,7 @@ assignment_operator
 
 expression
 	: assignment_expression
-	| expression ',' assignment_expression
+	| expression COMMA assignment_expression
 	;
 
 constant_expression
@@ -164,18 +164,18 @@ constant_expression
 	;
 
 declaration
-	: declaration_specifiers ID ';'
-	| declaration_specifiers init_declarator_list ';'
+	: declaration_specifiers ID SEMI
+	| declaration_specifiers init_declarator_list SEMI
 	;
 
 declaration_specifiers
-	: type_specifier {printf("teste\n");}
+	: type_specifier
 	| type_specifier declaration_specifiers
 	;
 
 init_declarator_list
 	: initializer
-	| init_declarator_list ',' initializer
+	| init_declarator_list COMMA initializer
 	;
 
 /*
@@ -186,7 +186,7 @@ init_declarator
 
 type_specifier
 	: VOID
-	| INTEGER {printf("inteiro\n");}
+	| INTEGER
 	| FLOAT_NUMBER
 	| TYPE_NAME
 	;
