@@ -30,6 +30,12 @@ Carregar o lex
 $ flex lexer.l
 ```
 
+Carregar o yacc
+
+```
+$ yacc parser.y
+```
+
 Gerar o analisador da linguagem
 
 ```
@@ -41,3 +47,7 @@ Rodar o analisador no mergeSort de exemplo
 ```
 $ ./parser < mergeSort.txt
 ```
+
+## Conclusão
+
+Os arquivos gerados automaticamente pelos comandos são o y.tab.c e o seu header y.tab.h, e também o lex.yy.c
