@@ -40,14 +40,14 @@ primary_expression
 	: ID
 	| CONSTANT
 	| STRING_LITERAL
-	| '(' expression ')'
+	| LPAR expression RPAR
 	;
 
 postfix_expression
 	: primary_expression
-	| postfix_expression '[' expression ']'
-	| postfix_expression '(' ')'
-	| postfix_expression '(' argument_expression_list ')'
+	| postfix_expression LBRAK expression RBRAK
+	| postfix_expression LPAR RPAR
+	| postfix_expression LPAR argument_expression_list RPAR
 	| postfix_expression '.' ID
 	| postfix_expression INC_OP
 	| postfix_expression DEC_OP
@@ -55,7 +55,7 @@ postfix_expression
 
 argument_expression_list
 	: assignment_expression
-	| argument_expression_list ',' assignment_expression
+	| argument_expression_list COMMA assignment_expression
 	;
 
 unary_expression
@@ -66,10 +66,10 @@ unary_expression
 	;
 
 unary_operator
-	: '*'
-	| '+'
-	| '-'
-	| '!'
+	: MUL
+	| ADD
+	| SUB
+	| DIV
 	;
 
 /*cast_expression
@@ -79,15 +79,15 @@ unary_operator
 
 multiplicative_expression
 	: unary_expression
-	| multiplicative_expression '*' unary_expression
-	| multiplicative_expression '/' unary_expression
+	| multiplicative_expression MUL unary_expression
+	| multiplicative_expression DIV unary_expression
 	| multiplicative_expression '%' unary_expression
 	;
 
 additive_expression
 	: multiplicative_expression
-	| additive_expression '+' multiplicative_expression
-	| additive_expression '-' multiplicative_expression
+	| additive_expression ADD multiplicative_expression
+	| additive_expression SUB multiplicative_expression
 	;
 
 /*shift_expression
@@ -98,8 +98,8 @@ additive_expression
 
 relational_expression
 	: additive_expression
-	| relational_expression '<' additive_expression
-	| relational_expression '>' additive_expression
+	| relational_expression LT additive_expression
+	| relational_expression GT additive_expression
 	| relational_expression LQ_OP additive_expression
 	| relational_expression GQ_OP additive_expression
 	;
@@ -255,7 +255,7 @@ direct_declarator
 
 parameter_list
 	: parameter_declaration
-	| parameter_list ',' parameter_declaration
+	| parameter_list COMMA parameter_declaration
 	;
 
 parameter_declaration
@@ -266,7 +266,7 @@ parameter_declaration
 
 identifier_list
 	: ID
-	| identifier_list ',' ID
+	| identifier_list COMMA ID
 	;
 
 /*type_name
@@ -294,13 +294,13 @@ direct_abstract_declarator
 
 initializer
 	: assignment_expression
-	| '{' initializer_list '}'
-	| '{' initializer_list ',' '}'
+	| LBRAC initializer_list RBRAC
+	| LBRAC initializer_list COMMA RBRAC
 	;
 
 initializer_list
 	: initializer
-	| initializer_list ',' initializer
+	| initializer_list COMMA initializer
 	;
 
 statement
@@ -312,10 +312,10 @@ statement
 	;
 
 compound_statement
-	: '{' '}'
-	| '{' statement_list '}'
-	| '{' declaration_list '}'
-	| '{' declaration_list statement_list '}'
+	: LBRAC RBRAC
+	| LBRAC statement_list RBRAC
+	| LBRAC declaration_list RBRAC
+	| LBRAC declaration_list statement_list RBRAC
 	;
 
 declaration_list
@@ -329,24 +329,24 @@ statement_list
 	;
 
 expression_statement
-	: ';'
-	| expression ';'
+	: SEMI
+	| expression SEMI
 	;
 
 selection_statement
-	: IF '(' expression ')' statement 
-	| IF '(' expression ')' statement ELSE statement
+	: IF LPAR expression RPAR statement 
+	| IF LPAR expression RPAR statement ELSE statement
 	;
 
 iteration_statement
-	: WHILE '(' expression ')' statement
-	| FOR '(' expression_statement expression_statement ')' statement
-	| FOR '(' expression_statement expression_statement expression ')' statement
+	: WHILE LPAR expression RPAR statement
+	| FOR LPAR expression_statement expression_statement RPAR statement
+	| FOR LPAR expression_statement expression_statement expression RPAR statement
 	;
 
 jump_statement
-	: RETURN ';'
-	| RETURN expression ';'
+	: RETURN SEMI
+	| RETURN expression SEMI
 	;
 
 prog: external_declaration {printf("external_declaration");}
