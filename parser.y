@@ -15,18 +15,22 @@ extern char * yytext;
 	};
 
 %token <sValue> ID
+%token <iValue> NUMBER
 %token WHILE  BLOCK_END DO IF 
-%token SEMI ELSE 
+%token SEMI ELSE COMMA AT LPAR RPAR LBRA RBRA QUEST
 %token CONSTANT 
-%token OR_OP LQ_OP GQ_OP EQ_OP NQ_OP
+%token OR_OP LQ_OP GQ_OP EQ_OP NQ_OP AND_OP
 %token STRING_LITERAL 
 %token SWITCH DEFAULT CASE FOR CONTINUE BREAK RETURN FUNCTION
 %token INTEGER FLOAT_NUMBER STRING BOOLEAN SET ARRAY MATRIZ VOID STRUCT
+%token ASSIGN MIN PLUS MULT DIV LT GT
 
 %nonassoc LOWER_THAN_ELSE
 %nonassoc ELSE
 
 %start prog
+
+//%type <sValue> stm
 
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
 

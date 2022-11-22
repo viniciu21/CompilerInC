@@ -18,21 +18,21 @@
 "matriz"              {return MATRIZ;}
 "void"                {return VOID;}
 "struct"              {return STRUCT;}
-";"      				      {return ";";}
-"="					          {return "=";}
-","                   {return ",";}
-"@"                   {return "@";}
-"("			              { return "("; }
-")"			              { return ")"; }
-"["			              { return "]"; }
-"]"			              { return "]"; }
-"-"			              { return "-"; }
-"+"			              { return "+"; }
-"*"			              { return "*"; }
-"/"			              { return "/"; }
-"<"		              	{ return "<"; }
-">"			              { return ">"; }
-"?"			              { return "?"; }
+";"      				      {return SEMI;}
+"="					          {return ASSIGN;}
+","                   {return COMMA;}
+"@"                   {return AT;}
+"("			              { return LPAR; }
+")"			              { return RPAR; }
+"["			              { return LBRA; }
+"]"			              { return RBRA; }
+"-"			              { return MIN; }
+"+"			              { return PLUS; }
+"*"			              { return MULT; }
+"/"			              { return DIV; }
+"<"		              	{ return LT; }
+">"			              { return GT; }
+"?"			              { return QUEST; }
 "&&"                  { return AND_OP;}
 "||"                  { return OR_OP;}
 "<="			            { return LQ_OP; }
