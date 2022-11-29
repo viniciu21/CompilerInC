@@ -1,11 +1,19 @@
-Tabela de símbolos (hash table):
+Tabela de símbolos definição (hash table 0):
   insert(chave, simbolo)
   simbolo <- lookup(chave) // chave = subprograma ++ nome
 
-Tabela de símbolos (hash table):
-  insert(main->valor1, INT)
-  insert(main->valor2, INT)
-  insert(somar->valor1, INT)
-  insert(somar->valor2, INT)
-  insert(somar->resultado, INT)
-  insert(main->resultado_str, STRING)
+Tabela de símbolos modelo padrão (hash table 1):
+  insert(main__valor1, INT)
+  insert(main__valor2, INT)
+  insert(somar__valor1, INT)
+  insert(somar__valor2, INT)
+  insert(somar__resultado, INT)
+  insert(main__resultado_str, STRING)
+
+Tabela de símbolos modelo com escopo (hash table 2):
+  insert(main, valor1, INT)
+  insert(main, valor2, INT)
+  insert(somar, valor1, INT)
+  insert(somar, valor2, INT)
+  insert(somar, resultado, INT)
+  insert(main, resultado_str, STRING)
