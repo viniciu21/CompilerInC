@@ -1,0 +1,11 @@
+Tabela de símbolos (hash table):
+  insert(chave, simbolo)
+  simbolo <- lookup(chave) // chave = subprograma ++ nome
+
+Tabela de símbolos (hash table):
+  insert(main->valor1, INT)
+  insert(main->valor2, INT)
+  insert(somar->valor1, INT)
+  insert(somar->valor2, INT)
+  insert(somar->resultado, INT)
+  insert(main->resultado_str, STRING)
