@@ -1,20 +1,16 @@
-D			[0-9]
-L			[a-zA-Z_]
-H			[a-fA-F0-9]
-E			[Ee][+-]?{D}+
-FS			(f|F|l|L)
-IS			(u|U|l|L)*
-
 %{
   #include <stdio.h>
   #include "y.tab.h"
 
   void count();
-  
+  void comment();
+  int check_type();
+  int yywrap();
 %}
 
 %%
-
+[0-9]+           	    {yylval.iValue = atoi(yytext);}
+L?\"(\\.|[^\\"])*\"	  { count(); return STRING_LITERAL; }
 "int"                 { count(); return (INTEGER); }
 "float"               { count(); return (FLOAT_NUMBER); }
 "string"              { count(); return (STRING); }
@@ -52,32 +48,24 @@ IS			(u|U|l|L)*
 ">="			            { count(); return (GQ_OP); }
 "=="			            { count(); return (EQ_OP) ; }
 "!="			            { count(); return (NQ_OP); }
-[ \n\t\r]+            {}
+[ \t\r]+            		{}
+\n							{ yylineno++; }
 "/*"			            { comment(); }
 "for"                 { count(); return FOR; }
 "while"      	        { count(); return WHILE; }
 "if"                  { count(); return IF; }
 "funtion"             { count(); return FUNCTION; }
 "else"      	        { count(); return ELSE; }
-[0-9]+           	    { count(); return NUMBER;}
-{L}({L}|{D})*		      { count(); return(check_type()); }
-L?\"(\\.|[^\\"])*\"	  { count(); return STRING_LITERAL; }
-0[xX]{H}+{IS}?		      { count(); return(ID); }
-0{D}+{IS}?		          { count(); return(ID); }
-{D}+{IS}?		            { count(); return(ID); }
-L?'(\\.|[^\\'])+'	      { count(); return(ID); }
-{D}+{E}{FS}?		        { count(); return(ID); }
-{D}*"."{D}+({E})?{FS}?	{ count(); return(ID); }
-{D}+"."{D}*({E})?{FS}?	{ count(); return(ID); }
+[a-zA-Z][a-zA-Z0-9]*	{yylval.sValue = strdup(yytext); return ID;}
 .                        {}
 
 %%
-yywrap()
+int yywrap()
 {
 	return(1);
 }
 
-comment()
+void comment()
 {
 	char c, c1;
 
