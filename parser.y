@@ -5,8 +5,6 @@ int yylex(void);
 int yyerror(char *s);
 extern int yylineno;
 extern char * yytext;
-
-
 %}
 
 %union {
@@ -16,353 +14,59 @@ extern char * yytext;
 	};
 
 %token <sValue> ID
-%token <iValue> NUMBER
 %token WHILE IF 
 %token ELSE 
-%token CONSTANT TYPE_NAME
+%token  TYPE_NAME
 %token OR_OP LQ_OP GQ_OP EQ_OP NQ_OP AND_OP INC_OP DEC_OP MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN SUB_ASSIGN
 %token STRING_LITERAL 
-%token SWITCH DEFAULT CASE FOR CONTINUE BREAK RETURN FUNCTION
-%token INTEGER FLOAT_NUMBER STRING BOOLEAN SET ARRAY MATRIZ VOID STRUCT
+%token FOR RETURN 
+%token INTEGER FLOAT_NUMBER SET MATRIZ VOID STRUCT
 %token ASSIGN SUB ADD MUL DIV LT GT
-%token SEMI COMMA AT LPAR RPAR LBRAK RBRAK LBRAC RBRAC QUEST
-
-%nonassoc LOWER_THAN_ELSE
-%nonassoc ELSE
+%token SEMI COMMA LPAR RPAR LBRAK RBRAK LBRAC RBRAC 
+%token STRING BOOLEAN ARRAY AT QUEST FUNCTION NUMBER
 
 %start prog
 
-//%type <sValue> stm
-
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
 
-primary_expression
-	: ID
-	| CONSTANT
-	| STRING_LITERAL
-	| LPAR expression RPAR
-	;
+type_specifier_declarator: INTEGER | FLOAT_NUMBER | STRING | BOOLEAN | specific_type ; 
 
-postfix_expression
-	: primary_expression
-	| postfix_expression LBRAK expression RBRAK
-	| postfix_expression LPAR RPAR
-	| postfix_expression LPAR argument_expression_list RPAR
-	| postfix_expression '.' ID
-	| postfix_expression INC_OP
-	| postfix_expression DEC_OP
-	;
+specific_type: SET | MATRIZ | STRUCT; 
 
-argument_expression_list
-	: assignment_expression
-	| argument_expression_list COMMA assignment_expression
-	;
+argument_list:  type_specifier_declarator ID | argument_list COMMA type_specifier_declarator ID
 
-unary_expression
-	: postfix_expression
-	| INC_OP unary_expression
-	| DEC_OP unary_expression
-	| unary_operator 
-	;
-
-unary_operator
-	: MUL
-	| ADD
-	| SUB
-	| DIV
-	;
-
-/*cast_expression
-	: unary_expression
-	| '(' type_name ')' cast_expression
-	;*/
-
-multiplicative_expression
-	: unary_expression
-	| multiplicative_expression MUL unary_expression
-	| multiplicative_expression DIV unary_expression
-	| multiplicative_expression '%' unary_expression
-	;
-
-additive_expression
-	: multiplicative_expression
-	| additive_expression ADD multiplicative_expression
-	| additive_expression SUB multiplicative_expression
-	;
-
-/*shift_expression
-	: additive_expression
-	| shift_expression LEFT_OP additive_expression
-	| shift_expression RIGHT_OP additive_expression
-	;*/
-
-relational_expression
-	: additive_expression
-	| relational_expression LT additive_expression
-	| relational_expression GT additive_expression
-	| relational_expression LQ_OP additive_expression
-	| relational_expression GQ_OP additive_expression
-	;
-
-equality_expression
-	: relational_expression
-	| equality_expression EQ_OP relational_expression
-	| equality_expression NQ_OP relational_expression
-	;
-
-and_expression
-	: equality_expression
-	| and_expression '&' equality_expression
-	;
-
-exclusive_or_expression
-	: and_expression
-	| exclusive_or_expression '^' and_expression
-	;
-
-inclusive_or_expression
-	: exclusive_or_expression
-	| inclusive_or_expression '|' exclusive_or_expression
-	;
-
-logical_and_expression
-	: inclusive_or_expression
-	| logical_and_expression AND_OP inclusive_or_expression
-	;
-
-logical_or_expression
-	: logical_and_expression
-	| logical_or_expression OR_OP logical_and_expression
-	;
-
-conditional_expression
-	: logical_or_expression
-	| logical_or_expression '?' expression ':' conditional_expression
-	;
-
-assignment_expression
-	: conditional_expression
-	| unary_expression assignment_operator assignment_expression
-	;
-
-assignment_operator
-	: ASSIGN
-	| MUL_ASSIGN
-	| DIV_ASSIGN
-	| MOD_ASSIGN
-	| ADD_ASSIGN
-	| SUB_ASSIGN
-	;
-
-expression
-	: assignment_expression
-	| expression COMMA assignment_expression
-	;
-
-constant_expression
-	: conditional_expression
-	;
-
-declaration
-	: declaration_specifiers ID SEMI
-	| declaration_specifiers init_declarator_list SEMI
-	;
-
-declaration_specifiers
-	: type_specifier
-	| type_specifier declaration_specifiers
-	;
-
-init_declarator_list
-	: initializer
-	| init_declarator_list COMMA initializer
-	;
-
-/*
-init_declarator
-	: declarator
-	| declarator '=' initializer
-	; */	
-
-type_specifier
-	: VOID
-	| INTEGER
-	| FLOAT_NUMBER
-	| TYPE_NAME
-	;
-
-specific_type
-	: STRUCT
-	| SET
-	| MATRIZ
-	;
-
-/*struct_or_union_specifier
-	: struct_or_union ID '{' struct_declaration_list '}'
-	| struct_or_union '{' struct_declaration_list '}'
-	| struct_or_union ID
-	;
-
-struct_or_union
-	: STRUCT
-	| UNION
-	;
-
-struct_declaration_list
-	: struct_declaration
-	| struct_declaration_list struct_declaration
-	;
-
-struct_declaration
-	: specifier_qualifier_list struct_declarator_list ';'
-	;
-
-specifier_qualifier_list
-	: type_specifier specifier_qualifier_list
-	| type_specifier
-	;
-
-struct_declarator_list
-	: ':' constant_expression
-	| struct_declarator_list ',' ':' constant_expression
-	; */
-
-/*struct_declarator
-	: declarator
-	| ':' constant_expression
-	| declarator ':' constant_expression
-	; */
-
-/*declarator
-	: pointer direct_declarator
-	| direct_declarator
-	;*/
-
-direct_declarator
-	: ID {printf("TESTE\n");}
-	| '(' direct_declarator ')'{printf("ACHEI\n");}
-	| direct_declarator '[' constant_expression ']' {printf("ACHEI\n");}
-	| direct_declarator '[' ']' {printf("ACHEI\n");}
-	| direct_declarator '(' parameter_list ')' {printf("ACHEI\n");}
-	| direct_declarator '(' identifier_list ')' {printf("ACHEI\n");}
-	| direct_declarator '(' ')' {printf("ACHEI\n");}
-	;
-
-/*pointer
-	: '*'
-	| '*' pointer
-	;*/
-
-parameter_list
-	: parameter_declaration
-	| parameter_list COMMA parameter_declaration
-	;
-
-parameter_declaration
-	: declaration_specifiers direct_declarator
-	| declaration_specifiers direct_abstract_declarator
-	| declaration_specifiers
-	;
-
-identifier_list
-	: ID
-	| identifier_list COMMA ID
-	;
-
-/*type_name
-	: specifier_qualifier_list
-	| specifier_qualifier_list abstract_declarator
-	; */
-
-/*abstract_declarator
-	: pointer
-	| direct_abstract_declarator
-	| pointer direct_abstract_declarator
-	; */
-
-direct_abstract_declarator
-	: '(' direct_abstract_declarator ')'
-	| '[' ']'
-	| '[' constant_expression ']'
-	| direct_abstract_declarator '[' ']'
-	| direct_abstract_declarator '[' constant_expression ']'
-	| '(' ')'
-	| '(' parameter_list ')'
-	| direct_abstract_declarator '(' ')'
-	| direct_abstract_declarator '(' parameter_list ')'
-	;
-
-initializer
-	: assignment_expression
-	| LBRAC initializer_list RBRAC
-	| LBRAC initializer_list COMMA RBRAC
-	;
-
-initializer_list
-	: initializer
-	| initializer_list COMMA initializer
-	;
-
-statement
-	: compound_statement
-	| expression_statement
-	| selection_statement  
-	| iteration_statement
-	| jump_statement
-	;
-
-compound_statement
-	: LBRAC RBRAC
-	| LBRAC statement_list RBRAC
-	| LBRAC declaration_list RBRAC
-	| LBRAC declaration_list statement_list RBRAC
-	;
-
-declaration_list
-	: declaration
-	| declaration_list declaration
-	;
-
-statement_list
-	: statement
-	| statement_list statement
-	;
-
-expression_statement
-	: SEMI
-	| expression SEMI
-	;
-
-selection_statement
-	: IF LPAR expression RPAR statement 
-	| IF LPAR expression RPAR statement ELSE statement
-	;
-
-iteration_statement
-	: WHILE LPAR expression RPAR statement
-	| FOR LPAR expression_statement expression_statement RPAR statement
-	| FOR LPAR expression_statement expression_statement expression RPAR statement
-	;
-
-jump_statement
-	: RETURN SEMI
-	| RETURN expression SEMI
-	;
-
-prog: external_declaration {printf("external_declaration");}
-	| prog external_declaration {printf("external_declaration");}
-	;
-
-function_definition : type_specifier direct_declarator compound_statement {printf("test");}
-					| specific_type '@' type_specifier direct_declarator compound_statement {printf("funcao tipo especifico \n");}
+function_definition : type_specifier_declarator ID LPAR argument_list RPAR LBRAC  RBRAC {printf("funcao normal \n");}
+					| type_specifier_declarator ID LPAR RPAR LBRAC  RBRAC {printf("funcao normal \n");}
+					| VOID ID LPAR RPAR LBRAC  RBRAC {printf("funcao normal \n");}
+					| specific_type AT type_specifier_declarator ID LPAR argument_list RPAR LBRAC RBRAC {printf("funcao tipo especifico \n");} 
+					| specific_type AT type_specifier_declarator ID LPAR RPAR LBRAC RBRAC {printf("funcao tipo especifico \n");} 
 					;
 
-external_declaration
-	: function_definition {printf("função\n");}
-	| declaration {printf("declaração \n");}
+
+//value_assgn : expression | set;
+
+//set: LPAR RPAR | LPAR expression RPAR;
+
+//expression: 
+
+declaration : type_specifier_declarator ID  {printf("declaration explicit \n");}
+	        | type_specifier_declarator ID ASSIGN;// assgn; 
+			;
+
+alts : alt
+	 | alts alt
+	 ;
+
+alt : function_definition {printf("função definicao\n");}
+	| declaration SEMI {printf("declaração \n");}
 	;
 
+
+prog: alts;
+
+
 %% /* Fim da segunda seção */
+
 int main (void) {
 	return yyparse ( );
 }
