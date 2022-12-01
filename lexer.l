@@ -1,11 +1,11 @@
 %{
-  #include <stdio.h>
-  #include "y.tab.h"
+	#include <stdio.h>
+	#include "y.tab.h"
 
-  void count();
-  void comment();
-  int check_type();
-  int yywrap();
+	void count();
+	void comment();
+	int check_type();
+	int yywrap();
 %}
 
 %%
@@ -54,7 +54,7 @@ L?\"(\\.|[^\\"])*\"	  { count(); return STRING_LITERAL; }
 "for"                 { count(); return FOR; }
 "while"      	        { count(); return WHILE; }
 "if"                  { count(); return IF; }
-"funtion"             { count(); return FUNCTION; }
+"function"             { count(); return FUNCTION; }
 "else"      	        { count(); return ELSE; }
 [a-zA-Z][a-zA-Z0-9]*	{yylval.sValue = strdup(yytext); return ID;}
 .                        {}
