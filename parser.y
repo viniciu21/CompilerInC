@@ -16,8 +16,7 @@ extern char * yytext;
 %token <sValue> ID
 %token WHILE IF 
 %token ELSE 
-%token  TYPE_NAME
-%token OR_OP LQ_OP GQ_OP EQ_OP NQ_OP AND_OP INC_OP DEC_OP MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN SUB_ASSIGN
+%token LQ_OP GQ_OP EQ_OP INC_OP DEC_OP MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN SUB_ASSIGN
 %token STRING_LITERAL 
 %token FOR RETURN 
 %token INTEGER FLOAT_NUMBER SET MATRIZ VOID STRUCT
@@ -25,9 +24,54 @@ extern char * yytext;
 %token SEMI COMMA LPAR RPAR LBRAK RBRAK LBRAC RBRAC 
 %token STRING BOOLEAN ARRAY AT QUEST FUNCTION NUMBER
 
+%right ASSIGN
+%left AND_OP OR_OP 
+%left LQ_OP GQ_OP EQ_OP NQ_OP 
+
+
 %start prog
 
+
 %% /* Inicio da segunda seção, onde colocamos as regras BNF */
+
+Declaration: type_specifier_declarator Assignment SEMI {printf("entrou aqui");}
+	| Assignment SEMI  	
+	| FunctionCall SEMI 	
+	/* | ArrayUsage SEMI	 */
+	/* | Type ArrayUsage SEMI    */
+	/* | StructStmt SEMI	 */
+	| error	
+	;
+
+/* Assignment block */
+Assignment: ID ASSIGN Assignment
+	| ID ASSIGN FunctionCall
+	/* | ID ASSIGN ArrayUsage */
+	/* | ArrayUsage ASSIGN Assignment */
+	| ID COMMA Assignment
+	| NUMBER COMMA Assignment
+	| ID ADD Assignment
+	| ID SUB Assignment
+	| ID MUL Assignment
+	| ID DIV Assignment	
+	| NUMBER ADD Assignment
+	| NUMBER SUB Assignment
+	| NUMBER MUL Assignment
+	| NUMBER DIV Assignment
+	| DIV Assignment DIV	
+	| LPAR Assignment RPAR
+	| SUB LPAR Assignment RPAR
+	| SUB NUMBER
+	| SUB ID
+	|   NUMBER
+	|   ID
+	;
+
+/* Function Call Block */
+FunctionCall : ID LPAR RPAR
+	| ID LPAR argument_list RPAR
+	;
+
 
 type_specifier_declarator: INTEGER | FLOAT_NUMBER | STRING | BOOLEAN | specific_type ; 
 
@@ -49,16 +93,16 @@ function_definition : type_specifier_declarator ID LPAR argument_list RPAR LBRAC
 
 //expression: 
 
-declaration : type_specifier_declarator ID  {printf("declaration explicit \n");}
+/* declaration : type_specifier_declarator ID  {printf("declaration explicit \n");}
 	        | type_specifier_declarator ID ASSIGN;// assgn; 
-			;
+			; */
 
 alts : alt
 	 | alts alt
 	 ;
 
 alt : function_definition {printf("função definicao\n");}
-	| declaration SEMI {printf("declaração \n");}
+	| Declaration {printf("declaração \n");}
 	;
 
 
