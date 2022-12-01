@@ -72,7 +72,6 @@ FunctionCall : ID LPAR RPAR
 	| ID LPAR argument_list RPAR
 	;
 
-
 type_specifier_declarator: INTEGER | FLOAT_NUMBER | STRING | BOOLEAN | specific_type ; 
 
 specific_type: SET | MATRIZ | STRUCT; 
