@@ -4,5 +4,10 @@ $ gcc lex.yy.c -o parser
 $ ./parser < mergeSort.txt
 
 lex lexer.l
-yacc parser.y -d -v -g 
-gcc lex.yy.c y.tab.c -o parser.exe 
+yacc parser.y -d -v -g
+gcc lex.yy.c y.tab.c -o parser.exe
+
+flex lexer.l
+bison parser.y -d -v -g
+gcc lex.yy.c y.tab.c -o parser.exe
+Get-Content teste.txt | ./parser
