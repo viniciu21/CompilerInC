@@ -1,21 +1,22 @@
 %{
     #include <stdio.h>
+    #include "y.tab.h"
 %}
 
 D                    [0-9]
 L                    [a-zA-Z_]
 %%
-"if"                 { return 1; }
-"else"               { return 1; }
-"for"                { return 1; }
-"while"              { return 1; }
-"goto"               { return 1; }
-"return"             { return 1; }
-"void"               { return 1; }
-"int"                { return 1; }
-"float"              { return 1; }
-"sting"              { return 1; }
-"bool"               { return 1; }
+"if"                 { return IF; }
+"else"               { return ELSE; }
+"for"                { return FOR; }
+"while"              { return WHILE; }
+"goto"               { return GOTO; }
+"return"             { return RETURN; }
+"void"               { return VOID; }
+"int"                { return INT; }
+"float"              { return FLOAT; }
+"string"             { return STRING; }
+"bool"               { return BOOL; }
 ";"                  { return ';'; }
 ","                  { return ','; }
 "="                  { return '='; }
@@ -31,8 +32,8 @@ L                    [a-zA-Z_]
 ">"                  { return '>'; }
 [ \t\r]              { ; }
 \n                   { yylineno++; }
-{D}+                 { return 1; }
-{L}({L}|{D})*        { return 1; }
+{D}+                 { return CONSTANT; }
+{L}({L}|{D})*        { return IDENTIFIER; }
 .                    { printf("error: bad token '%s'\n", yytext); return 0; }
 <<EOF>>              { return 0; }
 %%
