@@ -30,6 +30,8 @@ L                    [a-zA-Z_]
 "}"                  { return '}'; }
 "<"                  { return '<'; }
 ">"                  { return '>'; }
+"=="                 { return OP_EQUAL_TO; }
+"!="                 { return OP_NOT_EQUAL_TO}
 [ \t\r]              { ; }
 \n                   { yylineno++; }
 {D}+                 { return CONSTANT; }
@@ -42,7 +44,8 @@ int yywrap(void) {
     return 1;
 }
 
-int main(int argc, char **argv) {
+/* uncomment before running lexer2 without parser2 */
+/* int main(int argc, char **argv) {
     while (yylex());
     return 0;
-}
+} */

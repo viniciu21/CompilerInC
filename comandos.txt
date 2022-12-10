@@ -19,3 +19,9 @@ Get-Content teste.txt | ./parser.exe
 lex lexer2.l
 gcc lex.yy.c -o scanner
 ./scanner < teste.txt
+
+>Atual
+lex lexer2.l
+yacc -dy parser2.y
+gcc y.tab.c lex.yy.c -o parser
+./parser < teste.txt

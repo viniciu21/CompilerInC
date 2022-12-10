@@ -1,0 +1,87 @@
+//=================================================================
+
+// functions
+
+void func0 ( ) { }
+bool func1 ( ) { }
+int func1 ( ) { }
+float func1 ( ) { }
+string func1 ( ) { }
+void func1 (int a) { }
+void func1 (int a, int b) { }
+void func1 (int arr[]) { }
+void func1 (int arr[], int c) { }
+
+//=================================================================
+
+// declarations
+	
+void nada;
+bool valor;
+int numero;
+float real;
+string palavra;
+
+//=================================================================
+
+// additive_expression
+int num = 4 + 2;
+num = 5 - 3;
+
+// multiplicative_expression
+num = 5 * 2;
+num = 6 / 3;
+num = 4 % 3;
+
+// assignment_expression
+int x = 0;
+x += 5;
+x -= 2;
+x *= 4;
+x /= 3;
+x %= 2;
+
+// equality_expression
+bool false = x == 3;
+bool true = x != 3;
+
+// relational_expression
+false = x <= 1;
+true = x >= 1;
+false = x > 4;
+true = x < 4;
+
+// conditional_expression
+bool variavel_booleana = (x == 2) ? (true == false) : x > 0;
+    
+// logical_or_expression
+bool verdadeiro = true || false;
+
+// logical_and_expression
+bool falso = true && false;
+
+// inclusive_or_expression
+variavel_booleana = (x != 2) | (verdadeiro == falso);
+
+// exclusive_or_expression
+variavel_booleana = (x != 2) ^ (verdadeiro == falso);
+
+// and_expression
+variavel_booleana = (x != 2) & (verdadeiro == falso);
+
+//=================================================================
+
+/*
+    Comentarios
+*/
+	
+print("Digite um array de numeros");
+	
+for (int i = 0; i < num; i++);
+    myarray[i] = read();
+END FOR
+	
+int i = 1
+while (i <= mid)
+    i++;
+END WHILE
