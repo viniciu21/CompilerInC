@@ -1,13 +1,21 @@
 $ flex lexer.l
 $ yacc parser.y -d
 $ gcc lex.yy.c -o parser
-$ ./parser < mergeSort.txt
+$ ./parser.exe < teste.txt
 
+>Default (Debian)
 lex lexer.l
 yacc parser.y -d -v -g
 gcc lex.yy.c y.tab.c -o parser.exe
+./parser.exe < teste.txt
 
+>Windows
 flex lexer.l
 bison parser.y -d -v -g
 gcc lex.yy.c y.tab.c -o parser.exe
-Get-Content teste.txt | ./parser
+Get-Content teste.txt | ./parser.exe
+
+>Testando apenas lex:
+lex lexer2.l
+gcc lex.yy.c -o scanner
+./scanner < teste.txt
